@@ -41,7 +41,7 @@ class S3Service {
             });
             try {
                 const url = yield (0, s3_request_presigner_1.getSignedUrl)(s3, command, { expiresIn: 60 });
-                return url;
+                return { uploadURL: url, key };
             }
             catch (error) {
                 console.error("Error generating upload URL:", error);
@@ -57,8 +57,8 @@ class S3Service {
                 Key: key,
             });
             try {
-                const url = yield (0, s3_request_presigner_1.getSignedUrl)(s3, command, { expiresIn: 60 });
-                return url;
+                const signedUrl = yield (0, s3_request_presigner_1.getSignedUrl)(s3, command, { expiresIn: 300 });
+                return signedUrl;
             }
             catch (error) {
                 console.error("Error generating download URL:", error);

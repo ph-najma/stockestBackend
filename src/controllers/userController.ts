@@ -164,11 +164,13 @@ export class UserController implements IUserController {
     res: Response
   ): Promise<void> => {
     try {
+      const fileKey = req.query.key as string;
       const user = await this.userService.getUserProfile(req.userId);
+      const signedUrl = await this.s3Service.generateDownloadURL(fileKey);
       const response: ResponseModel = {
         success: true,
         message: "User profile",
-        data: user,
+        data: { user, signedUrl },
       };
       res.status(HttpStatusCode.OK).json(response);
     } catch (error: any) {
@@ -624,6 +626,18 @@ export class UserController implements IUserController {
       res.status(200).json({ uploadURL });
     } catch (error) {
       res.status(500).json({ error: "Error generating upload URL" });
+    }
+  };
+  public getDownloadUrl = async (
+    req: Request,
+    res: Response
+  ): Promise<void> => {
+    const fileKey = req.query.key as string;
+    try {
+      const signedUrl = await this.s3Service.generateDownloadURL(fileKey);
+      res.json(signedUrl);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to get download URL" });
     }
   };
 }

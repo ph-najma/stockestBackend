@@ -94,7 +94,6 @@ const userSchema = new mongoose_1.Schema({
     },
     profilePhoto: {
         type: String,
-        default: "assets/default-profile.png",
     },
     portfolio: [
         {

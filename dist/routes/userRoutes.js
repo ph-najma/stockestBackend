@@ -80,6 +80,7 @@ router.get("/refresh", userController.refreshToken);
 router.get("/search", (0, auth_1.verifyTokenWithRole)("user"), userController.getBySearch);
 router.get("/activeSessions", (0, auth_1.verifyTokenWithRole)("user"), userController.getActiveSessions);
 router.get("/get-upload-url", userController.getUploadURL);
+router.get("/getDownloadUrl", userController.getDownloadUrl);
 router.post("/generate", userController.generate);
 router.post("/createVideoSession", userController.createVideoSession);
 // Google OAuth routes

@@ -63,6 +63,10 @@ io.on("connection", (socket) => {
         console.log("ICE candidate received:", candidate);
         socket.broadcast.emit("ice-candidate", candidate);
     });
+    socket.on("call-ended", () => {
+        console.log("Call ended by client:", socket.id);
+        io.emit("call-ended");
+    });
     // Session handling
     socket.on("createSession", (sessionId) => __awaiter(void 0, void 0, void 0, function* () {
         const newSession = new Session2({ sessionId });

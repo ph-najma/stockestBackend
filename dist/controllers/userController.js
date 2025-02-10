@@ -169,11 +169,13 @@ class UserController {
         //User Profile
         this.getUserProfile = (req, res) => __awaiter(this, void 0, void 0, function* () {
             try {
+                const fileKey = req.query.key;
                 const user = yield this.userService.getUserProfile(req.userId);
+                const signedUrl = yield this.s3Service.generateDownloadURL(fileKey);
                 const response = {
                     success: true,
                     message: "User profile",
-                    data: user,
+                    data: { user, signedUrl },
                 };
                 res.status(Interfaces_1.HttpStatusCode.OK).json(response);
             }
@@ -576,6 +578,16 @@ class UserController {
             }
             catch (error) {
                 res.status(500).json({ error: "Error generating upload URL" });
+            }
+        });
+        this.getDownloadUrl = (req, res) => __awaiter(this, void 0, void 0, function* () {
+            const fileKey = req.query.key;
+            try {
+                const signedUrl = yield this.s3Service.generateDownloadURL(fileKey);
+                res.json(signedUrl);
+            }
+            catch (error) {
+                res.status(500).json({ error: "Failed to get download URL" });
             }
         });
         this.userService = userService;

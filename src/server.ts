@@ -39,7 +39,6 @@ io.on("connection", (socket) => {
   }, 5000);
   // Update every 5 seconds
 
-
   socket.on("offer", (data) => {
     console.log("Offer received:", data);
     socket.broadcast.emit("offer", data);
@@ -55,6 +54,10 @@ io.on("connection", (socket) => {
   socket.on("ice-candidate", (candidate) => {
     console.log("ICE candidate received:", candidate);
     socket.broadcast.emit("ice-candidate", candidate);
+  });
+  socket.on("call-ended", () => {
+    console.log("Call ended by client:", socket.id);
+    io.emit("call-ended");
   });
 
   // Session handling

@@ -22,7 +22,7 @@ export class S3Service {
   private bucketName = process.env.S3_BUCKET_NAME!;
 
   // Generate a Signed Upload URL (PUT)
-  async generateUploadURL(): Promise<string> {
+  async generateUploadURL(): Promise<{ uploadURL: string; key: string }> {
     const key = `my-user-profile-photos/${uuidv4()}.jpg`; // Unique file name
     const command = new PutObjectCommand({
       Bucket: this.bucketName,
@@ -32,7 +32,7 @@ export class S3Service {
 
     try {
       const url = await getSignedUrl(s3, command, { expiresIn: 60 });
-      return url;
+      return { uploadURL: url, key };
     } catch (error) {
       console.error("Error generating upload URL:", error);
       throw error;
@@ -47,8 +47,8 @@ export class S3Service {
     });
 
     try {
-      const url = await getSignedUrl(s3, command, { expiresIn: 60 });
-      return url;
+      const signedUrl = await getSignedUrl(s3, command, { expiresIn: 300 });
+      return signedUrl;
     } catch (error) {
       console.error("Error generating download URL:", error);
       throw error;

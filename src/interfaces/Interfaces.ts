@@ -398,6 +398,7 @@ export interface IAdminService {
   countUsers(): Promise<number>;
 }
 
+//Admin controller interface
 export interface IAdminController {
   login(req: Request, res: Response): Promise<void>;
   getUserList(req: Request, res: Response): Promise<void>;
@@ -451,4 +452,5 @@ export interface IUserController {
   refreshToken(req: Request, res: Response): Promise<void>;
   createVideoSession(req: Request, res: Response): Promise<void>;
   getUploadURL(req: Request, res: Response): Promise<void>;
+  getDownloadUrl(req: Request, res: Response): Promise<void>;
 }

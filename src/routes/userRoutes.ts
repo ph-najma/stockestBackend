@@ -144,7 +144,7 @@ router.get(
   userController.getActiveSessions
 );
 router.get("/get-upload-url", userController.getUploadURL);
-
+router.get("/getDownloadUrl", userController.getDownloadUrl);
 router.post("/generate", userController.generate);
 
 router.post("/createVideoSession", userController.createVideoSession);
