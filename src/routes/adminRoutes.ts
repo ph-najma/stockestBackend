@@ -4,7 +4,7 @@ import { AdminController } from "../controllers/adminController";
 import { AdminService } from "../services/adminService";
 import { UserRepository } from "../repositories/userRepository";
 import { limitRepository } from "../repositories/limitRepository";
-import { StockRepository } from "../repositories/stockrepository";
+import { StockRepository } from "../repositories/stockRepository";
 import { OrderRepository } from "../repositories/orderRepository";
 import { transactionRepository } from "../repositories/transactionRepository";
 import { PromotionRepository } from "../repositories/promotionRepository";

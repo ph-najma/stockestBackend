@@ -16,9 +16,9 @@ exports.io = void 0;
 const socket_io_1 = require("socket.io");
 const http_1 = __importDefault(require("http"));
 const app_1 = __importDefault(require("./app")); // Your express app
-const stockrepository_1 = require("./repositories/stockrepository");
+const stockRepository_1 = require("./repositories/stockRepository");
 const mongoose = require("mongoose");
-const stockrepository = new stockrepository_1.StockRepository();
+const stockrepository = new stockRepository_1.StockRepository();
 const server = http_1.default.createServer(app_1.default); // Create HTTP server using the express app
 const io = new socket_io_1.Server(server, {
     cors: {
@@ -27,18 +27,6 @@ const io = new socket_io_1.Server(server, {
     },
 });
 exports.io = io;
-let isCallActive = false;
-// interface Session {
-//   roomId: string;
-//   instructorSocket: string;
-//   studentSocket: string;
-// }
-// const sessions: Session[] = [];
-const session2Schema = new mongoose.Schema({
-    sessionId: String,
-    createdAt: { type: Date, default: Date.now },
-});
-const Session2 = mongoose.model("Session2", session2Schema);
 // Handle client connection for socket.io
 io.on("connection", (socket) => {
     console.log("Client connected:", socket.id);
@@ -64,11 +52,6 @@ io.on("connection", (socket) => {
         socket.broadcast.emit("ice-candidate", candidate);
     });
     // Session handling
-    socket.on("createSession", (sessionId) => __awaiter(void 0, void 0, void 0, function* () {
-        const newSession = new Session2({ sessionId });
-        yield newSession.save();
-        console.log("Session created:", sessionId);
-    }));
     socket.on("disconnect", () => {
         console.log("User disconnected:", socket.id);
     });

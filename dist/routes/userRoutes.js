@@ -22,7 +22,7 @@ const userModel_1 = __importDefault(require("../models/userModel"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const checkPortfolio_1 = require("../controllers/checkPortfolio");
 const userService_1 = require("../services/userService");
-const stockrepository_1 = require("../repositories/stockrepository");
+const stockRepository_1 = require("../repositories/stockRepository");
 const userRepository_1 = require("../repositories/userRepository");
 const transactionRepository_1 = require("../repositories/transactionRepository");
 const orderRepository_1 = require("../repositories/orderRepository");
@@ -30,18 +30,16 @@ const promotionRepository_1 = require("../repositories/promotionRepository");
 const watchlistRepsoitory_1 = require("../repositories/watchlistRepsoitory");
 const paymentController_1 = require("../controllers/paymentController");
 const sessionRepository_1 = require("../repositories/sessionRepository");
-const videoSessionRepository_1 = require("../repositories/videoSessionRepository");
 const orderModel_1 = __importDefault(require("../models/orderModel"));
 const userRepository = new userRepository_1.UserRepository();
-const stockRepository = new stockrepository_1.StockRepository();
+const stockRepository = new stockRepository_1.StockRepository();
 const TransactionRepository = new transactionRepository_1.transactionRepository();
 const orderRepository = new orderRepository_1.OrderRepository(orderModel_1.default);
 const promotionRepository = new promotionRepository_1.PromotionRepository();
 const watchlistRepository = new watchlistRepsoitory_1.watchlistRepostory();
 const paymentController = new paymentController_1.PaymentController();
 const sessionRepsoitory = new sessionRepository_1.sessionRepository();
-const videoSessionRepository = new videoSessionRepository_1.videosessionRepository();
-const userController = new userController_1.UserController(new userService_1.UserService(stockRepository, userRepository, TransactionRepository, orderRepository, promotionRepository, watchlistRepository, sessionRepsoitory, videoSessionRepository));
+const userController = new userController_1.UserController(new userService_1.UserService(stockRepository, userRepository, TransactionRepository, orderRepository, promotionRepository, watchlistRepository, sessionRepsoitory));
 dotenv_1.default.config();
 const router = express_1.default.Router();
 const client = new google_auth_library_1.OAuth2Client(process.env.GOOGLE_CLIENT_ID);
@@ -81,7 +79,6 @@ router.get("/search", (0, auth_1.verifyTokenWithRole)("user"), userController.ge
 router.get("/activeSessions", (0, auth_1.verifyTokenWithRole)("user"), userController.getActiveSessions);
 router.get("/get-upload-url", userController.getUploadURL);
 router.post("/generate", userController.generate);
-router.post("/createVideoSession", userController.createVideoSession);
 // Google OAuth routes
 router.get("/auth/google", passport_1.default.authenticate("google", {
     scope: ["profile", "email"], // Request access to the user's profile and email

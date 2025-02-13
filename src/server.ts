@@ -1,7 +1,7 @@
 import { Server } from "socket.io";
 import http from "http";
 import app from "./app"; // Your express app
-import { StockRepository } from "./repositories/stockrepository";
+import { StockRepository } from "./repositories/stockRepository";
 const mongoose = require("mongoose");
 
 const stockrepository = new StockRepository();

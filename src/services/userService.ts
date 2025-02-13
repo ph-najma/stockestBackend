@@ -22,7 +22,6 @@ import {
   ISession,
   IWatchlist,
 } from "../interfaces/Interfaces";
-import { videosessionRepository } from "../repositories/videoSessionRepository";
 
 type ObjectId = mongoose.Types.ObjectId;
 
@@ -38,7 +37,7 @@ export class UserService implements IUserService {
   private promotionRepository: IpromotionRepsoitory;
   private watchlistRepository: IWatchlistRepository;
   private sessionRepository: ISessionRepository;
-  private videosessionRepository: videosessionRepository;
+
   constructor(
     stockRepository: IStockRepository,
     userRepository: IuserRepsitory,
@@ -46,8 +45,7 @@ export class UserService implements IUserService {
     orderRepository: IOrderRepository,
     promotionRepository: IpromotionRepsoitory,
     watchlistRepsoitory: IWatchlistRepository,
-    sessionRepository: ISessionRepository,
-    videosessionRepository: videosessionRepository
+    sessionRepository: ISessionRepository
   ) {
     this.userRepository = userRepository;
     this.orderRepository = orderRepository;
@@ -56,7 +54,6 @@ export class UserService implements IUserService {
     this.promotionRepository = promotionRepository;
     this.watchlistRepository = watchlistRepsoitory;
     this.sessionRepository = sessionRepository;
-    this.videosessionRepository = videosessionRepository;
   }
 
   // Sign up a new user
@@ -435,11 +432,5 @@ export class UserService implements IUserService {
     } catch (error) {
       return "Failed to verify refresh token.";
     }
-  }
-  async createVideoSession(instructorId: string): Promise<any> {
-    return await this.videosessionRepository.createSession(instructorId);
-  }
-  async joinSession(student: string, sessionId: string): Promise<any> {
-    return await this.videosessionRepository.joinSession(student, sessionId);
   }
 }

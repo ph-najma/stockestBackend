@@ -22,7 +22,7 @@ const otpGenerator_1 = require("../utils/otpGenerator");
 dotenv_1.default.config();
 const otpStore = new Map();
 class UserService {
-    constructor(stockRepository, userRepository, transactionRepository, orderRepository, promotionRepository, watchlistRepsoitory, sessionRepository, videosessionRepository) {
+    constructor(stockRepository, userRepository, transactionRepository, orderRepository, promotionRepository, watchlistRepsoitory, sessionRepository) {
         this.userRepository = userRepository;
         this.orderRepository = orderRepository;
         this.transactionRepository = transactionRepository;
@@ -30,7 +30,6 @@ class UserService {
         this.promotionRepository = promotionRepository;
         this.watchlistRepository = watchlistRepsoitory;
         this.sessionRepository = sessionRepository;
-        this.videosessionRepository = videosessionRepository;
     }
     // Sign up a new user
     signup(name, email, password, role, referralCode) {
@@ -372,16 +371,6 @@ class UserService {
             catch (error) {
                 return "Failed to verify refresh token.";
             }
-        });
-    }
-    createVideoSession(instructorId) {
-        return __awaiter(this, void 0, void 0, function* () {
-            return yield this.videosessionRepository.createSession(instructorId);
-        });
-    }
-    joinSession(student, sessionId) {
-        return __awaiter(this, void 0, void 0, function* () {
-            return yield this.videosessionRepository.joinSession(student, sessionId);
         });
     }
 }

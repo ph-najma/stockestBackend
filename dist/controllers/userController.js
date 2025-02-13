@@ -564,11 +564,6 @@ class UserController {
             };
             res.status(Interfaces_1.HttpStatusCode.OK).json(response);
         });
-        this.createVideoSession = (req, res) => __awaiter(this, void 0, void 0, function* () {
-            const { instructorId } = req.body;
-            const sessionId = yield this.userService.createVideoSession(instructorId);
-            res.json({ sessionId });
-        });
         this.getUploadURL = (req, res) => __awaiter(this, void 0, void 0, function* () {
             try {
                 const uploadURL = yield this.s3Service.generateUploadURL();

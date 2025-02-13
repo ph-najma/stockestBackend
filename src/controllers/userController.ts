@@ -610,14 +610,7 @@ export class UserController implements IUserController {
     };
     res.status(HttpStatusCode.OK).json(response);
   };
-  public createVideoSession = async (
-    req: Request,
-    res: Response
-  ): Promise<void> => {
-    const { instructorId } = req.body;
-    const sessionId = await this.userService.createVideoSession(instructorId);
-    res.json({ sessionId });
-  };
+
   public getUploadURL = async (req: Request, res: Response): Promise<void> => {
     try {
       const uploadURL = await this.s3Service.generateUploadURL();

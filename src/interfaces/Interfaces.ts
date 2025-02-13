@@ -352,8 +352,6 @@ export interface IUserService {
   getHistorical(symbol: string | undefined): Promise<any>;
   countOrders(userId: string | undefined): Promise<number>;
   refreshToken(refreshToken: string): Promise<string>;
-  createVideoSession(instructorId: string): Promise<any>;
-  joinSession(student: string, sessionId: string): Promise<any>;
 }
 export interface IAdminService {
   loginAdmin(email: string, password: string): Promise<{ token: string }>;
@@ -449,6 +447,6 @@ export interface IUserController {
   getBySearch(req: Request, res: Response): Promise<void>;
   generate(req: Request, res: Response): Promise<void>;
   refreshToken(req: Request, res: Response): Promise<void>;
-  createVideoSession(req: Request, res: Response): Promise<void>;
+
   getUploadURL(req: Request, res: Response): Promise<void>;
 }

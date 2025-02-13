@@ -9,7 +9,7 @@ import { IUser } from "../interfaces/Interfaces";
 import jwt from "jsonwebtoken";
 import { checkPortfolio } from "../controllers/checkPortfolio";
 import { UserService } from "../services/userService";
-import { StockRepository } from "../repositories/stockrepository";
+import { StockRepository } from "../repositories/stockRepository";
 import { UserRepository } from "../repositories/userRepository";
 import { transactionRepository } from "../repositories/transactionRepository";
 import { OrderRepository } from "../repositories/orderRepository";
@@ -17,7 +17,6 @@ import { PromotionRepository } from "../repositories/promotionRepository";
 import { watchlistRepostory } from "../repositories/watchlistRepsoitory";
 import { PaymentController } from "../controllers/paymentController";
 import { sessionRepository } from "../repositories/sessionRepository";
-import { videosessionRepository } from "../repositories/videoSessionRepository";
 
 import orderModel from "../models/orderModel";
 import { main } from "../gemini";
@@ -29,7 +28,7 @@ const promotionRepository = new PromotionRepository();
 const watchlistRepository = new watchlistRepostory();
 const paymentController = new PaymentController();
 const sessionRepsoitory = new sessionRepository();
-const videoSessionRepository = new videosessionRepository();
+
 const userController = new UserController(
   new UserService(
     stockRepository,
@@ -38,8 +37,7 @@ const userController = new UserController(
     orderRepository,
     promotionRepository,
     watchlistRepository,
-    sessionRepsoitory,
-    videoSessionRepository
+    sessionRepsoitory
   )
 );
 
@@ -147,7 +145,6 @@ router.get("/get-upload-url", userController.getUploadURL);
 
 router.post("/generate", userController.generate);
 
-router.post("/createVideoSession", userController.createVideoSession);
 // Google OAuth routes
 router.get(
   "/auth/google",
