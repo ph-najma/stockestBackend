@@ -13,19 +13,6 @@ const io = new Server(server, {
     methods: ["GET", "POST"],
   },
 });
-let isCallActive = false;
-// interface Session {
-//   roomId: string;
-//   instructorSocket: string;
-//   studentSocket: string;
-// }
-
-// const sessions: Session[] = [];
-const session2Schema = new mongoose.Schema({
-  sessionId: String,
-  createdAt: { type: Date, default: Date.now },
-});
-const Session2 = mongoose.model("Session2", session2Schema);
 
 // Handle client connection for socket.io
 io.on("connection", (socket) => {
@@ -38,7 +25,6 @@ io.on("connection", (socket) => {
     socket.emit("stockUpdate", liveStockData); // Emit real-time stock data
   }, 5000);
   // Update every 5 seconds
-
 
   socket.on("offer", (data) => {
     console.log("Offer received:", data);
@@ -58,11 +44,6 @@ io.on("connection", (socket) => {
   });
 
   // Session handling
-  socket.on("createSession", async (sessionId) => {
-    const newSession = new Session2({ sessionId });
-    await newSession.save();
-    console.log("Session created:", sessionId);
-  });
 
   socket.on("disconnect", () => {
     console.log("User disconnected:", socket.id);
