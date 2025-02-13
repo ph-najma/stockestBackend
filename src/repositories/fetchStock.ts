@@ -80,6 +80,7 @@ export class fetchStockRepository {
           if (existingStock) {
             // Update the stock in the database
             Object.assign(existingStock, stockData);
+            console.log(existingStock, stockData);
             await existingStock.save();
           } else {
             // Create a new stock entry in the database
