@@ -50,7 +50,6 @@ const userSchema = new Schema<IUser>({
   },
   profilePhoto: {
     type: String,
-    default: "assets/default-profile.png",
   },
   portfolio: [
     {

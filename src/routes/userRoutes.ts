@@ -141,7 +141,22 @@ router.get(
   verifyTokenWithRole("user"),
   userController.getActiveSessions
 );
-router.get("/get-upload-url", userController.getUploadURL);
+router.post("/get-upload-url", userController.getUploadURL);
+router.get(
+  "/get-signed-url",
+  verifyTokenWithRole("user"),
+  userController.getSignedUrl
+);
+router.post(
+  "/update-profile",
+  verifyTokenWithRole("user"),
+  userController.saveProfile
+);
+router.get(
+  "/get-profile",
+  verifyTokenWithRole("user"),
+  userController.getProfileById
+);
 
 router.post("/generate", userController.generate);
 

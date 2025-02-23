@@ -27,7 +27,6 @@ const router = express_1.default.Router();
 router.post("/adminLogin", adminController.login);
 router.get("/userList", (0, auth_1.verifyTokenWithRole)("admin"), adminController.getUserList);
 router.post("/disableUser/:id", (0, auth_1.verifyTokenWithRole)("admin"), adminController.disableUser);
-router.get("/stocks", adminController.getStockList);
 router.get("/stocklist", (0, auth_1.verifyTokenWithRole)("admin"), adminController.getStockList);
 router.get("/orders", (0, auth_1.verifyTokenWithRole)("admin"), adminController.getAllOrders);
 router.get("/limitorders", (0, auth_1.verifyTokenWithRole)("admin"), adminController.getLimitOrders);

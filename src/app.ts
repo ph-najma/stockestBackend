@@ -22,7 +22,6 @@ dotenv.config();
 
 // Create the express app
 const app: Application = express();
-const PORT = 8080;
 
 connectDB();
 connectRedis();

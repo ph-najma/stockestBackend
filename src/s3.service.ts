@@ -6,6 +6,7 @@ import {
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner"; // For generating signed URLs
 import { v4 as uuidv4 } from "uuid";
 import dotenv from "dotenv";
+import User from "./models/userModel";
 
 dotenv.config();
 
@@ -22,17 +23,24 @@ export class S3Service {
   private bucketName = process.env.S3_BUCKET_NAME!;
 
   // Generate a Signed Upload URL (PUT)
-  async generateUploadURL(): Promise<string> {
-    const key = `my-user-profile-photos/${uuidv4()}.jpg`; // Unique file name
+  async generateUploadURL(
+    userId: string
+  ): Promise<{ url: string; Key: string }> {
+    const Key = `my-user-profile-photos/${uuidv4()}.jpg`; // Unique file name
     const command = new PutObjectCommand({
       Bucket: this.bucketName,
-      Key: key,
-      ContentType: "image/*",
+      Key: Key,
+      ContentType: "image/jpeg",
     });
 
     try {
       const url = await getSignedUrl(s3, command, { expiresIn: 60 });
-      return url;
+      const user = await User.findByIdAndUpdate(
+        userId,
+        { profilePhoto: Key },
+        { new: true }
+      );
+      return { url, Key };
     } catch (error) {
       console.error("Error generating upload URL:", error);
       throw error;

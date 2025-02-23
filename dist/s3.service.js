@@ -17,6 +17,7 @@ const client_s3_1 = require("@aws-sdk/client-s3");
 const s3_request_presigner_1 = require("@aws-sdk/s3-request-presigner"); // For generating signed URLs
 const uuid_1 = require("uuid");
 const dotenv_1 = __importDefault(require("dotenv"));
+const userModel_1 = __importDefault(require("./models/userModel"));
 dotenv_1.default.config();
 // Configure AWS S3 Client
 const s3 = new client_s3_1.S3Client({
@@ -31,17 +32,18 @@ class S3Service {
         this.bucketName = process.env.S3_BUCKET_NAME;
     }
     // Generate a Signed Upload URL (PUT)
-    generateUploadURL() {
+    generateUploadURL(userId) {
         return __awaiter(this, void 0, void 0, function* () {
-            const key = `my-user-profile-photos/${(0, uuid_1.v4)()}.jpg`; // Unique file name
+            const Key = `my-user-profile-photos/${(0, uuid_1.v4)()}.jpg`; // Unique file name
             const command = new client_s3_1.PutObjectCommand({
                 Bucket: this.bucketName,
-                Key: key,
-                ContentType: "image/*",
+                Key: Key,
+                ContentType: "image/jpeg",
             });
             try {
                 const url = yield (0, s3_request_presigner_1.getSignedUrl)(s3, command, { expiresIn: 60 });
-                return url;
+                const user = yield userModel_1.default.findByIdAndUpdate(userId, { profilePhoto: Key }, { new: true });
+                return { url, Key };
             }
             catch (error) {
                 console.error("Error generating upload URL:", error);

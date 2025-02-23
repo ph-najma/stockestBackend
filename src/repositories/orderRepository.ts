@@ -39,6 +39,7 @@ export class OrderRepository
       .populate("stock")
       .exec();
   }
+ 
 
   async findOrdersByType(query: ILimitOrderQuery): Promise<IOrder[]> {
     return this.model

@@ -41,7 +41,7 @@ router.post(
   verifyTokenWithRole("admin"),
   adminController.disableUser
 );
-router.get("/stocks", adminController.getStockList);
+
 router.get(
   "/stocklist",
   verifyTokenWithRole("admin"),

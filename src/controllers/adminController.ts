@@ -7,6 +7,8 @@ import mongoose from "mongoose";
 import { ResponseModel } from "../interfaces/Interfaces";
 import { HttpStatusCode } from "../interfaces/Interfaces";
 import { IAdminController } from "../interfaces/Interfaces";
+import sendResponse from "../helper/helper";
+import { send } from "process";
 export class AdminController implements IAdminController {
   private adminService: IAdminService;
 
@@ -19,20 +21,22 @@ export class AdminController implements IAdminController {
     try {
       const { email, password } = req.body;
       const { token } = await this.adminService.loginAdmin(email, password);
-      const response: ResponseModel = {
-        success: true,
-        message: "User logged in successfully",
-        data: { token },
-      };
-
-      res.status(HttpStatusCode.OK).json(response);
+      sendResponse(
+        res,
+        HttpStatusCode.OK,
+        true,
+        "User logged in successfully",
+        { token }
+      );
     } catch (error: any) {
-      const response: ResponseModel = {
-        success: false,
-        message: error.message,
-        error: error.message,
-      };
-      res.status(HttpStatusCode.BAD_REQUEST).json(response);
+      sendResponse(
+        res,
+        HttpStatusCode.BAD_REQUEST,
+        false,
+        error.message,
+        null,
+        error
+      );
     }
   };
 
@@ -44,24 +48,27 @@ export class AdminController implements IAdminController {
       const limit = parseInt(req.query.limit as string, 10) || 10;
       const skip = (page - 1) * limit;
       const totalUsers = await this.adminService.countUsers();
-      const response: ResponseModel = {
-        success: true,
-        message: "Users retrieved successfully",
-        data: {
+      sendResponse(
+        res,
+        HttpStatusCode.OK,
+        true,
+        "Users retrieved successfully",
+        {
           usersData,
           totalUsers,
           currentPage: page,
           totalPages: Math.ceil(totalUsers / limit),
-        },
-      };
-      res.status(HttpStatusCode.OK).json(response);
+        }
+      );
     } catch (error: any) {
-      const response: ResponseModel = {
-        success: false,
-        message: error.message,
-        error: error.message,
-      };
-      res.status(HttpStatusCode.BAD_REQUEST).json(response);
+      sendResponse(
+        res,
+        HttpStatusCode.BAD_REQUEST,
+        false,
+        error.message,
+        null,
+        error
+      );
     }
   };
 
@@ -74,19 +81,22 @@ export class AdminController implements IAdminController {
         userId,
         token
       );
-      const response: ResponseModel = {
-        success: true,
-        message: "User Toggled successfully",
-        data: result,
-      };
-      res.status(HttpStatusCode.OK).json(response);
+      sendResponse(
+        res,
+        HttpStatusCode.OK,
+        true,
+        "User disabled successfully",
+        result
+      );
     } catch (error: any) {
-      const response: ResponseModel = {
-        success: false,
-        message: error.message,
-        error: error.message,
-      };
-      res.status(HttpStatusCode.BAD_REQUEST).json(response);
+      sendResponse(
+        res,
+        HttpStatusCode.BAD_REQUEST,
+        false,
+        error.message,
+        null,
+        error
+      );
     }
   };
 
@@ -94,19 +104,17 @@ export class AdminController implements IAdminController {
   public getStockList = async (req: Request, res: Response): Promise<void> => {
     try {
       const stocks = await this.adminService.getAllStocks();
-      const response: ResponseModel = {
-        success: true,
-        message: "Stock list",
-        data: stocks,
-      };
-      res.status(HttpStatusCode.OK).json(response);
+
+      sendResponse(res, HttpStatusCode.OK, true, "stock list", stocks);
     } catch (error: any) {
-      const response: ResponseModel = {
-        success: false,
-        message: error.message,
-        error: error.message,
-      };
-      res.status(HttpStatusCode.BAD_REQUEST).json(response);
+      sendResponse(
+        res,
+        HttpStatusCode.BAD_REQUEST,
+        false,
+        error.message,
+        null,
+        error
+      );
     }
   };
 
@@ -119,14 +127,16 @@ export class AdminController implements IAdminController {
         message: "All Orders",
         data: orders,
       };
-      res.status(HttpStatusCode.OK).json(response);
+      sendResponse(res, HttpStatusCode.OK, true, "All Orders", orders);
     } catch (error: any) {
-      const response: ResponseModel = {
-        success: false,
-        message: error.message,
-        error: error.message,
-      };
-      res.status(HttpStatusCode.BAD_REQUEST).json(response);
+      sendResponse(
+        res,
+        HttpStatusCode.BAD_REQUEST,
+        false,
+        error.message,
+        null,
+        error
+      );
     }
   };
 
@@ -159,19 +169,17 @@ export class AdminController implements IAdminController {
       }
 
       const orders = await this.adminService.getLimitOrders(query);
-      const response: ResponseModel = {
-        success: true,
-        message: "Limit Orders",
-        data: orders,
-      };
-      res.status(HttpStatusCode.OK).json(response);
+
+      sendResponse(res, HttpStatusCode.OK, true, "Limit Orders", orders);
     } catch (error: any) {
-      const response: ResponseModel = {
-        success: false,
-        message: error.message,
-        error: error.message,
-      };
-      res.status(HttpStatusCode.BAD_REQUEST).json(response);
+      sendResponse(
+        res,
+        HttpStatusCode.BAD_REQUEST,
+        false,
+        error.message,
+        null,
+        error
+      );
     }
   };
 
@@ -205,19 +213,17 @@ export class AdminController implements IAdminController {
       }
 
       const orders = await this.adminService.getMarketOrders(query);
-      const response: ResponseModel = {
-        success: true,
-        message: "Market orders",
-        data: orders,
-      };
-      res.status(HttpStatusCode.OK).json(response);
+
+      sendResponse(res, HttpStatusCode.OK, true, "Market Orders", orders);
     } catch (error: any) {
-      const response: ResponseModel = {
-        success: false,
-        message: error.message,
-        error: error.message,
-      };
-      res.status(HttpStatusCode.BAD_REQUEST).json(response);
+      sendResponse(
+        res,
+        HttpStatusCode.BAD_REQUEST,
+        false,
+        error.message,
+        null,
+        error
+      );
     }
   };
 
@@ -231,19 +237,17 @@ export class AdminController implements IAdminController {
         .populate("user", "name")
         .populate("stock", "symbol")
         .exec();
-      const response: ResponseModel = {
-        success: true,
-        message: "Matched Orders",
-        data: orders,
-      };
-      res.status(HttpStatusCode.OK).json(orders);
+
+      sendResponse(res, HttpStatusCode.OK, true, "Matched Orders", orders);
     } catch (error: any) {
-      const response: ResponseModel = {
-        success: false,
-        message: error.message,
-        error: error.message,
-      };
-      res.status(HttpStatusCode.BAD_REQUEST).json(response);
+      sendResponse(
+        res,
+        HttpStatusCode.BAD_REQUEST,
+        false,
+        error.message,
+        null,
+        error
+      );
     }
   };
 
@@ -269,20 +273,20 @@ export class AdminController implements IAdminController {
           .status(HttpStatusCode.NOT_FOUND)
           .json({ message: "Order not found" });
       } else {
-        const response: ResponseModel = {
-          success: true,
-          message: "Order Details",
-          data: { order, transactions },
-        };
-        res.status(HttpStatusCode.OK).json(response);
+        sendResponse(res, HttpStatusCode.OK, true, "Order Details", {
+          order,
+          transactions,
+        });
       }
     } catch (error: any) {
-      const response: ResponseModel = {
-        success: false,
-        message: error.message,
-        error: error.message,
-      };
-      res.status(HttpStatusCode.BAD_REQUEST).json(response);
+      sendResponse(
+        res,
+        HttpStatusCode.BAD_REQUEST,
+        false,
+        error.message,
+        null,
+        error
+      );
     }
   };
   public getAllTransactions = async (
@@ -291,19 +295,23 @@ export class AdminController implements IAdminController {
   ): Promise<void> => {
     try {
       const transactions = await this.adminService.getAllTransactions();
-      const response: ResponseModel = {
-        success: true,
-        message: "All Transactions",
-        data: transactions,
-      };
-      res.status(HttpStatusCode.OK).json(response);
+
+      sendResponse(
+        res,
+        HttpStatusCode.OK,
+        true,
+        "All transactions",
+        transactions
+      );
     } catch (error: any) {
-      const response: ResponseModel = {
-        success: false,
-        message: error.message,
-        error: error.message,
-      };
-      res.status(HttpStatusCode.BAD_REQUEST).json(response);
+      sendResponse(
+        res,
+        HttpStatusCode.BAD_REQUEST,
+        false,
+        error.message,
+        null,
+        error
+      );
     }
   };
 
@@ -318,19 +326,23 @@ export class AdminController implements IAdminController {
         res.status(400).json({ message: "Invalid User ID format" });
       }
       const portfolio = await this.adminService.getUserPortfolio(userId);
-      const response: ResponseModel = {
-        success: true,
-        message: "User Portfolio details",
-        data: portfolio,
-      };
-      res.status(HttpStatusCode.OK).json(response);
+
+      sendResponse(
+        res,
+        HttpStatusCode.OK,
+        true,
+        "User portfolio details",
+        portfolio
+      );
     } catch (error: any) {
-      const response: ResponseModel = {
-        success: false,
-        message: error.message,
-        error: error.message,
-      };
-      res.status(HttpStatusCode.BAD_REQUEST).json(response);
+      sendResponse(
+        res,
+        HttpStatusCode.BAD_REQUEST,
+        false,
+        error.message,
+        null,
+        error
+      );
     }
   };
   public getTotalFeesCollected = async (
@@ -339,19 +351,17 @@ export class AdminController implements IAdminController {
   ): Promise<void> => {
     try {
       const fees = await this.adminService.getTotalFeesCollected();
-      const response: ResponseModel = {
-        success: true,
-        message: "Total fees Collected",
-        data: fees,
-      };
-      res.status(HttpStatusCode.OK).json(response);
+
+      sendResponse(res, HttpStatusCode.OK, true, "Total fees collected", fees);
     } catch (error: any) {
-      const response: ResponseModel = {
-        success: false,
-        message: error.message,
-        error: error.message,
-      };
-      res.status(HttpStatusCode.BAD_REQUEST).json(response);
+      sendResponse(
+        res,
+        HttpStatusCode.BAD_REQUEST,
+        false,
+        error.message,
+        null,
+        error
+      );
     }
   };
   public cancelOrder = async (req: Request, res: Response): Promise<void> => {
@@ -359,19 +369,23 @@ export class AdminController implements IAdminController {
       const orderId = req.params.orderId;
 
       const updatedOrder = await this.adminService.cancelOrder(orderId);
-      const response: ResponseModel = {
-        success: true,
-        message: "Order status updated to FAILED successfully",
-        data: updatedOrder,
-      };
-      res.status(HttpStatusCode.OK).json(response);
+
+      sendResponse(
+        res,
+        HttpStatusCode.OK,
+        true,
+        "Order status updated to FAILED sucessfully",
+        updatedOrder
+      );
     } catch (error: any) {
-      const response: ResponseModel = {
-        success: false,
-        message: error.message,
-        error: error.message,
-      };
-      res.status(HttpStatusCode.BAD_REQUEST).json(response);
+      sendResponse(
+        res,
+        HttpStatusCode.BAD_REQUEST,
+        false,
+        error.message,
+        null,
+        error
+      );
     }
   };
   public updateLimit = async (req: Request, res: Response): Promise<void> => {
@@ -379,37 +393,33 @@ export class AdminController implements IAdminController {
       const limitData = req.body;
 
       const updatedLimit = await this.adminService.updateLimit(limitData);
-      const response: ResponseModel = {
-        success: true,
-        message: "Updated limit",
-        data: updatedLimit,
-      };
-      res.status(HttpStatusCode.OK).json(response);
+
+      sendResponse(res, HttpStatusCode.OK, true, "Updated limit", updatedLimit);
     } catch (error: any) {
-      const response: ResponseModel = {
-        success: false,
-        message: error.message,
-        error: error.message,
-      };
-      res.status(HttpStatusCode.BAD_REQUEST).json(response);
+      sendResponse(
+        res,
+        HttpStatusCode.BAD_REQUEST,
+        false,
+        error.message,
+        null,
+        error
+      );
     }
   };
   public getLimits = async (req: Request, res: Response): Promise<void> => {
     try {
       const limits = await this.adminService.getLimits();
-      const response: ResponseModel = {
-        success: true,
-        message: "Current liits",
-        data: limits,
-      };
-      res.status(HttpStatusCode.OK).json(response);
+
+      sendResponse(res, HttpStatusCode.OK, true, "Current limits", limits);
     } catch (error: any) {
-      const response: ResponseModel = {
-        success: false,
-        message: error.message,
-        error: error.message,
-      };
-      res.status(HttpStatusCode.BAD_REQUEST).json(response);
+      sendResponse(
+        res,
+        HttpStatusCode.BAD_REQUEST,
+        false,
+        error.message,
+        null,
+        error
+      );
     }
   };
   public CreatePromotions = async (
@@ -418,38 +428,45 @@ export class AdminController implements IAdminController {
   ): Promise<void> => {
     try {
       const promotions = await this.adminService.CreatePromotions(req.body);
-      const response: ResponseModel = {
-        success: true,
-        message: "Promotion created successfully",
-        data: promotions,
-      };
-      res.status(HttpStatusCode.CREATED).json(response);
+
+      sendResponse(
+        res,
+        HttpStatusCode.OK,
+        true,
+        "Promotion created successfully",
+        promotions
+      );
     } catch (error: any) {
-      const response: ResponseModel = {
-        success: false,
-        message: error.message,
-        error: error.message,
-      };
-      res.status(HttpStatusCode.BAD_REQUEST).json(response);
+      sendResponse(
+        res,
+        HttpStatusCode.BAD_REQUEST,
+        false,
+        error.message,
+        null,
+        error
+      );
     }
   };
   public createSession = async (req: Request, res: Response): Promise<void> => {
     try {
       const session = await this.adminService.createSsession(req.body);
 
-      const response: ResponseModel = {
-        success: true,
-        message: "Session created successfully",
-        data: session,
-      };
-      res.status(HttpStatusCode.CREATED).json(response);
+      sendResponse(
+        res,
+        HttpStatusCode.OK,
+        true,
+        "Session created successfully",
+        session
+      );
     } catch (error: any) {
-      const response: ResponseModel = {
-        success: false,
-        message: error.message,
-        error: error.message,
-      };
-      res.status(HttpStatusCode.BAD_REQUEST).json(response);
+      sendResponse(
+        res,
+        HttpStatusCode.BAD_REQUEST,
+        false,
+        error.message,
+        null,
+        error
+      );
     }
   };
   public getAllSessions = async (
@@ -458,19 +475,23 @@ export class AdminController implements IAdminController {
   ): Promise<void> => {
     try {
       const sessions = await this.adminService.getAllSessions();
-      const response: ResponseModel = {
-        success: true,
-        message: "Session got successfully",
-        data: sessions,
-      };
-      res.status(HttpStatusCode.OK).json(response);
+
+      sendResponse(
+        res,
+        HttpStatusCode.OK,
+        true,
+        "Session got successfully",
+        sessions
+      );
     } catch (error: any) {
-      const response: ResponseModel = {
-        success: false,
-        message: error.message,
-        error: error.message,
-      };
-      res.status(HttpStatusCode.BAD_REQUEST).json(response);
+      sendResponse(
+        res,
+        HttpStatusCode.BAD_REQUEST,
+        false,
+        error.message,
+        null,
+        error
+      );
     }
   };
   public getSessionById = async (
@@ -480,19 +501,23 @@ export class AdminController implements IAdminController {
     try {
       const sessionId = req.params.sessionId;
       const session = await this.adminService.getSessionById(sessionId);
-      const response: ResponseModel = {
-        success: true,
-        message: "Session got successfully",
-        data: session,
-      };
-      res.status(HttpStatusCode.OK).json(response);
+
+      sendResponse(
+        res,
+        HttpStatusCode.OK,
+        true,
+        "session got succesfully",
+        session
+      );
     } catch (error: any) {
-      const response: ResponseModel = {
-        success: false,
-        message: error.message,
-        error: error.message,
-      };
-      res.status(HttpStatusCode.BAD_REQUEST).json(response);
+      sendResponse(
+        res,
+        HttpStatusCode.BAD_REQUEST,
+        false,
+        error.message,
+        null,
+        error
+      );
     }
   };
   public updateSessionData = async (
@@ -505,19 +530,23 @@ export class AdminController implements IAdminController {
         sessionId,
         req.body
       );
-      const response: ResponseModel = {
-        success: true,
-        message: "Session updated successfully",
-        data: updatedSession,
-      };
-      res.status(HttpStatusCode.CREATED).json(updatedSession);
+
+      sendResponse(
+        res,
+        HttpStatusCode.OK,
+        true,
+        "session updated succesfully",
+        updatedSession
+      );
     } catch (error: any) {
-      const response: ResponseModel = {
-        success: false,
-        message: error.message,
-        error: error.message,
-      };
-      res.status(HttpStatusCode.BAD_REQUEST).json(response);
+      sendResponse(
+        res,
+        HttpStatusCode.BAD_REQUEST,
+        false,
+        error.message,
+        null,
+        error
+      );
     }
   };
   public cancelSession = async (req: Request, res: Response): Promise<void> => {
@@ -529,20 +558,23 @@ export class AdminController implements IAdminController {
         sessionId,
         status
       );
-      const response: ResponseModel = {
-        success: true,
-        message: "Session cancelled successfully",
-        data: updatedSession,
-      };
 
-      res.status(HttpStatusCode.OK).json(response);
+      sendResponse(
+        res,
+        HttpStatusCode.OK,
+        true,
+        "session cancelled succesfully",
+        updatedSession
+      );
     } catch (error: any) {
-      const response: ResponseModel = {
-        success: false,
-        message: error.message,
-        error: error.message,
-      };
-      res.status(HttpStatusCode.BAD_REQUEST).json(response);
+      sendResponse(
+        res,
+        HttpStatusCode.BAD_REQUEST,
+        false,
+        error.message,
+        null,
+        error
+      );
     }
   };
 }

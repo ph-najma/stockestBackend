@@ -77,7 +77,10 @@ router.get("/getAssigned", (0, auth_1.verifyTokenWithRole)("user"), userControll
 router.get("/refresh", userController.refreshToken);
 router.get("/search", (0, auth_1.verifyTokenWithRole)("user"), userController.getBySearch);
 router.get("/activeSessions", (0, auth_1.verifyTokenWithRole)("user"), userController.getActiveSessions);
-router.get("/get-upload-url", userController.getUploadURL);
+router.post("/get-upload-url", userController.getUploadURL);
+router.get("/get-signed-url", (0, auth_1.verifyTokenWithRole)("user"), userController.getSignedUrl);
+router.post("/update-profile", (0, auth_1.verifyTokenWithRole)("user"), userController.saveProfile);
+router.get("/get-profile", (0, auth_1.verifyTokenWithRole)("user"), userController.getProfileById);
 router.post("/generate", userController.generate);
 // Google OAuth routes
 router.get("/auth/google", passport_1.default.authenticate("google", {

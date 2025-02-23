@@ -15,6 +15,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.UserService = void 0;
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const bcryptjs_1 = __importDefault(require("bcryptjs"));
+const mongoose_1 = __importDefault(require("mongoose"));
 const crypto_1 = __importDefault(require("crypto"));
 const dotenv_1 = __importDefault(require("dotenv"));
 const sendEmail_1 = require("../utils/sendEmail");
@@ -193,6 +194,33 @@ class UserService {
             return yield this.userRepository.findById(userId);
         });
     }
+    getUpdatedPortfolio(user) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let totalPortfolioValue = 0;
+            let overallProfit = 0;
+            let todaysProfit = 0;
+            const updatedPortfolio = yield Promise.all(user.portfolio.map((item) => __awaiter(this, void 0, void 0, function* () {
+                const stock = yield this.getStockById(item.stockId instanceof mongoose_1.default.Types.ObjectId
+                    ? item.stockId.toString()
+                    : item.stockId);
+                if (!stock)
+                    return item;
+                const stockValue = stock.price * item.quantity;
+                const profit = stockValue - stock.open * item.quantity;
+                const todaysChange = stock.changePercent;
+                totalPortfolioValue += stockValue;
+                overallProfit += profit;
+                todaysProfit += (profit * parseFloat(todaysChange)) / 100;
+                return Object.assign(Object.assign({}, item), { stockData: stock, currentValue: stockValue, overallProfit: profit, todaysProfit });
+            })));
+            return {
+                portfolio: updatedPortfolio,
+                totalPortfolioValue,
+                overallProfit,
+                todaysProfit,
+            };
+        });
+    }
     //Get All Stocks
     getAllStocks() {
         return __awaiter(this, void 0, void 0, function* () {
@@ -217,9 +245,9 @@ class UserService {
         });
     }
     //Get Transactions of a user
-    getTransactions(userId) {
+    getTransactions(userId, skip, limit) {
         return __awaiter(this, void 0, void 0, function* () {
-            const transactions = yield this.transactionRepository.getTransactions(userId);
+            const transactions = yield this.transactionRepository.getTransactions(userId, skip, limit);
             return transactions;
         });
     }

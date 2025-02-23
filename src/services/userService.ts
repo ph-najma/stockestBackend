@@ -251,6 +251,46 @@ export class UserService implements IUserService {
     return await this.userRepository.findById(userId);
   }
 
+  async getUpdatedPortfolio(user: IUser): Promise<any> {
+    let totalPortfolioValue = 0;
+    let overallProfit = 0;
+    let todaysProfit = 0;
+
+    const updatedPortfolio = await Promise.all(
+      user.portfolio.map(async (item) => {
+        const stock = await this.getStockById(
+          item.stockId instanceof mongoose.Types.ObjectId
+            ? item.stockId.toString()
+            : item.stockId
+        );
+        if (!stock) return item;
+
+        const stockValue = stock.price * item.quantity;
+        const profit = stockValue - stock.open * item.quantity;
+        const todaysChange = stock.changePercent;
+
+        totalPortfolioValue += stockValue;
+        overallProfit += profit;
+        todaysProfit += (profit * parseFloat(todaysChange)) / 100;
+
+        return {
+          ...item,
+          stockData: stock,
+          currentValue: stockValue,
+          overallProfit: profit,
+          todaysProfit,
+        };
+      })
+    );
+
+    return {
+      portfolio: updatedPortfolio,
+      totalPortfolioValue,
+      overallProfit,
+      todaysProfit,
+    };
+  }
+
   //Get All Stocks
   async getAllStocks() {
     return this.stockRepository.getAllStocks();
@@ -283,9 +323,15 @@ export class UserService implements IUserService {
   }
 
   //Get Transactions of a user
-  async getTransactions(userId: string | undefined): Promise<ITransaction[]> {
+  async getTransactions(
+    userId: string | undefined,
+    skip: number,
+    limit: number
+  ): Promise<ITransaction[]> {
     const transactions = await this.transactionRepository.getTransactions(
-      userId
+      userId,
+      skip,
+      limit
     );
 
     return transactions;

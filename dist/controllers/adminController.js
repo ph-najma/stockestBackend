@@ -17,6 +17,7 @@ const orderModel_1 = __importDefault(require("../models/orderModel"));
 const transactionModel_1 = __importDefault(require("../models/transactionModel"));
 const mongoose_1 = __importDefault(require("mongoose"));
 const Interfaces_1 = require("../interfaces/Interfaces");
+const helper_1 = __importDefault(require("../helper/helper"));
 class AdminController {
     constructor(adminService) {
         // Admin Login
@@ -24,20 +25,10 @@ class AdminController {
             try {
                 const { email, password } = req.body;
                 const { token } = yield this.adminService.loginAdmin(email, password);
-                const response = {
-                    success: true,
-                    message: "User logged in successfully",
-                    data: { token },
-                };
-                res.status(Interfaces_1.HttpStatusCode.OK).json(response);
+                (0, helper_1.default)(res, Interfaces_1.HttpStatusCode.OK, true, "User logged in successfully", { token });
             }
             catch (error) {
-                const response = {
-                    success: false,
-                    message: error.message,
-                    error: error.message,
-                };
-                res.status(Interfaces_1.HttpStatusCode.BAD_REQUEST).json(response);
+                (0, helper_1.default)(res, Interfaces_1.HttpStatusCode.BAD_REQUEST, false, error.message, null, error);
             }
         });
         // Get User List
@@ -48,25 +39,15 @@ class AdminController {
                 const limit = parseInt(req.query.limit, 10) || 10;
                 const skip = (page - 1) * limit;
                 const totalUsers = yield this.adminService.countUsers();
-                const response = {
-                    success: true,
-                    message: "Users retrieved successfully",
-                    data: {
-                        usersData,
-                        totalUsers,
-                        currentPage: page,
-                        totalPages: Math.ceil(totalUsers / limit),
-                    },
-                };
-                res.status(Interfaces_1.HttpStatusCode.OK).json(response);
+                (0, helper_1.default)(res, Interfaces_1.HttpStatusCode.OK, true, "Users retrieved successfully", {
+                    usersData,
+                    totalUsers,
+                    currentPage: page,
+                    totalPages: Math.ceil(totalUsers / limit),
+                });
             }
             catch (error) {
-                const response = {
-                    success: false,
-                    message: error.message,
-                    error: error.message,
-                };
-                res.status(Interfaces_1.HttpStatusCode.BAD_REQUEST).json(response);
+                (0, helper_1.default)(res, Interfaces_1.HttpStatusCode.BAD_REQUEST, false, error.message, null, error);
             }
         });
         // Disable User
@@ -76,40 +57,20 @@ class AdminController {
                 const userId = req.params.id;
                 const token = (_a = req.headers.authorization) === null || _a === void 0 ? void 0 : _a.split(" ")[1];
                 const result = yield this.adminService.toggleUserBlockStatus(userId, token);
-                const response = {
-                    success: true,
-                    message: "User Toggled successfully",
-                    data: result,
-                };
-                res.status(Interfaces_1.HttpStatusCode.OK).json(response);
+                (0, helper_1.default)(res, Interfaces_1.HttpStatusCode.OK, true, "User disabled successfully", result);
             }
             catch (error) {
-                const response = {
-                    success: false,
-                    message: error.message,
-                    error: error.message,
-                };
-                res.status(Interfaces_1.HttpStatusCode.BAD_REQUEST).json(response);
+                (0, helper_1.default)(res, Interfaces_1.HttpStatusCode.BAD_REQUEST, false, error.message, null, error);
             }
         });
         // Get Stock List
         this.getStockList = (req, res) => __awaiter(this, void 0, void 0, function* () {
             try {
                 const stocks = yield this.adminService.getAllStocks();
-                const response = {
-                    success: true,
-                    message: "Stock list",
-                    data: stocks,
-                };
-                res.status(Interfaces_1.HttpStatusCode.OK).json(response);
+                (0, helper_1.default)(res, Interfaces_1.HttpStatusCode.OK, true, "stock list", stocks);
             }
             catch (error) {
-                const response = {
-                    success: false,
-                    message: error.message,
-                    error: error.message,
-                };
-                res.status(Interfaces_1.HttpStatusCode.BAD_REQUEST).json(response);
+                (0, helper_1.default)(res, Interfaces_1.HttpStatusCode.BAD_REQUEST, false, error.message, null, error);
             }
         });
         // Get All Orders
@@ -121,15 +82,10 @@ class AdminController {
                     message: "All Orders",
                     data: orders,
                 };
-                res.status(Interfaces_1.HttpStatusCode.OK).json(response);
+                (0, helper_1.default)(res, Interfaces_1.HttpStatusCode.OK, true, "All Orders", orders);
             }
             catch (error) {
-                const response = {
-                    success: false,
-                    message: error.message,
-                    error: error.message,
-                };
-                res.status(Interfaces_1.HttpStatusCode.BAD_REQUEST).json(response);
+                (0, helper_1.default)(res, Interfaces_1.HttpStatusCode.BAD_REQUEST, false, error.message, null, error);
             }
         });
         // Get Limit Orders
@@ -154,20 +110,10 @@ class AdminController {
                     };
                 }
                 const orders = yield this.adminService.getLimitOrders(query);
-                const response = {
-                    success: true,
-                    message: "Limit Orders",
-                    data: orders,
-                };
-                res.status(Interfaces_1.HttpStatusCode.OK).json(response);
+                (0, helper_1.default)(res, Interfaces_1.HttpStatusCode.OK, true, "Limit Orders", orders);
             }
             catch (error) {
-                const response = {
-                    success: false,
-                    message: error.message,
-                    error: error.message,
-                };
-                res.status(Interfaces_1.HttpStatusCode.BAD_REQUEST).json(response);
+                (0, helper_1.default)(res, Interfaces_1.HttpStatusCode.BAD_REQUEST, false, error.message, null, error);
             }
         });
         // Get Market Orders
@@ -192,20 +138,10 @@ class AdminController {
                     };
                 }
                 const orders = yield this.adminService.getMarketOrders(query);
-                const response = {
-                    success: true,
-                    message: "Market orders",
-                    data: orders,
-                };
-                res.status(Interfaces_1.HttpStatusCode.OK).json(response);
+                (0, helper_1.default)(res, Interfaces_1.HttpStatusCode.OK, true, "Market Orders", orders);
             }
             catch (error) {
-                const response = {
-                    success: false,
-                    message: error.message,
-                    error: error.message,
-                };
-                res.status(Interfaces_1.HttpStatusCode.BAD_REQUEST).json(response);
+                (0, helper_1.default)(res, Interfaces_1.HttpStatusCode.BAD_REQUEST, false, error.message, null, error);
             }
         });
         // Matched Orders
@@ -215,20 +151,10 @@ class AdminController {
                     .populate("user", "name")
                     .populate("stock", "symbol")
                     .exec();
-                const response = {
-                    success: true,
-                    message: "Matched Orders",
-                    data: orders,
-                };
-                res.status(Interfaces_1.HttpStatusCode.OK).json(orders);
+                (0, helper_1.default)(res, Interfaces_1.HttpStatusCode.OK, true, "Matched Orders", orders);
             }
             catch (error) {
-                const response = {
-                    success: false,
-                    message: error.message,
-                    error: error.message,
-                };
-                res.status(Interfaces_1.HttpStatusCode.BAD_REQUEST).json(response);
+                (0, helper_1.default)(res, Interfaces_1.HttpStatusCode.BAD_REQUEST, false, error.message, null, error);
             }
         });
         // Get Order Details
@@ -250,40 +176,23 @@ class AdminController {
                         .json({ message: "Order not found" });
                 }
                 else {
-                    const response = {
-                        success: true,
-                        message: "Order Details",
-                        data: { order, transactions },
-                    };
-                    res.status(Interfaces_1.HttpStatusCode.OK).json(response);
+                    (0, helper_1.default)(res, Interfaces_1.HttpStatusCode.OK, true, "Order Details", {
+                        order,
+                        transactions,
+                    });
                 }
             }
             catch (error) {
-                const response = {
-                    success: false,
-                    message: error.message,
-                    error: error.message,
-                };
-                res.status(Interfaces_1.HttpStatusCode.BAD_REQUEST).json(response);
+                (0, helper_1.default)(res, Interfaces_1.HttpStatusCode.BAD_REQUEST, false, error.message, null, error);
             }
         });
         this.getAllTransactions = (req, res) => __awaiter(this, void 0, void 0, function* () {
             try {
                 const transactions = yield this.adminService.getAllTransactions();
-                const response = {
-                    success: true,
-                    message: "All Transactions",
-                    data: transactions,
-                };
-                res.status(Interfaces_1.HttpStatusCode.OK).json(response);
+                (0, helper_1.default)(res, Interfaces_1.HttpStatusCode.OK, true, "All transactions", transactions);
             }
             catch (error) {
-                const response = {
-                    success: false,
-                    message: error.message,
-                    error: error.message,
-                };
-                res.status(Interfaces_1.HttpStatusCode.BAD_REQUEST).json(response);
+                (0, helper_1.default)(res, Interfaces_1.HttpStatusCode.BAD_REQUEST, false, error.message, null, error);
             }
         });
         this.getUserPortfolio = (req, res) => __awaiter(this, void 0, void 0, function* () {
@@ -293,195 +202,95 @@ class AdminController {
                     res.status(400).json({ message: "Invalid User ID format" });
                 }
                 const portfolio = yield this.adminService.getUserPortfolio(userId);
-                const response = {
-                    success: true,
-                    message: "User Portfolio details",
-                    data: portfolio,
-                };
-                res.status(Interfaces_1.HttpStatusCode.OK).json(response);
+                (0, helper_1.default)(res, Interfaces_1.HttpStatusCode.OK, true, "User portfolio details", portfolio);
             }
             catch (error) {
-                const response = {
-                    success: false,
-                    message: error.message,
-                    error: error.message,
-                };
-                res.status(Interfaces_1.HttpStatusCode.BAD_REQUEST).json(response);
+                (0, helper_1.default)(res, Interfaces_1.HttpStatusCode.BAD_REQUEST, false, error.message, null, error);
             }
         });
         this.getTotalFeesCollected = (req, res) => __awaiter(this, void 0, void 0, function* () {
             try {
                 const fees = yield this.adminService.getTotalFeesCollected();
-                const response = {
-                    success: true,
-                    message: "Total fees Collected",
-                    data: fees,
-                };
-                res.status(Interfaces_1.HttpStatusCode.OK).json(response);
+                (0, helper_1.default)(res, Interfaces_1.HttpStatusCode.OK, true, "Total fees collected", fees);
             }
             catch (error) {
-                const response = {
-                    success: false,
-                    message: error.message,
-                    error: error.message,
-                };
-                res.status(Interfaces_1.HttpStatusCode.BAD_REQUEST).json(response);
+                (0, helper_1.default)(res, Interfaces_1.HttpStatusCode.BAD_REQUEST, false, error.message, null, error);
             }
         });
         this.cancelOrder = (req, res) => __awaiter(this, void 0, void 0, function* () {
             try {
                 const orderId = req.params.orderId;
                 const updatedOrder = yield this.adminService.cancelOrder(orderId);
-                const response = {
-                    success: true,
-                    message: "Order status updated to FAILED successfully",
-                    data: updatedOrder,
-                };
-                res.status(Interfaces_1.HttpStatusCode.OK).json(response);
+                (0, helper_1.default)(res, Interfaces_1.HttpStatusCode.OK, true, "Order status updated to FAILED sucessfully", updatedOrder);
             }
             catch (error) {
-                const response = {
-                    success: false,
-                    message: error.message,
-                    error: error.message,
-                };
-                res.status(Interfaces_1.HttpStatusCode.BAD_REQUEST).json(response);
+                (0, helper_1.default)(res, Interfaces_1.HttpStatusCode.BAD_REQUEST, false, error.message, null, error);
             }
         });
         this.updateLimit = (req, res) => __awaiter(this, void 0, void 0, function* () {
             try {
                 const limitData = req.body;
                 const updatedLimit = yield this.adminService.updateLimit(limitData);
-                const response = {
-                    success: true,
-                    message: "Updated limit",
-                    data: updatedLimit,
-                };
-                res.status(Interfaces_1.HttpStatusCode.OK).json(response);
+                (0, helper_1.default)(res, Interfaces_1.HttpStatusCode.OK, true, "Updated limit", updatedLimit);
             }
             catch (error) {
-                const response = {
-                    success: false,
-                    message: error.message,
-                    error: error.message,
-                };
-                res.status(Interfaces_1.HttpStatusCode.BAD_REQUEST).json(response);
+                (0, helper_1.default)(res, Interfaces_1.HttpStatusCode.BAD_REQUEST, false, error.message, null, error);
             }
         });
         this.getLimits = (req, res) => __awaiter(this, void 0, void 0, function* () {
             try {
                 const limits = yield this.adminService.getLimits();
-                const response = {
-                    success: true,
-                    message: "Current liits",
-                    data: limits,
-                };
-                res.status(Interfaces_1.HttpStatusCode.OK).json(response);
+                (0, helper_1.default)(res, Interfaces_1.HttpStatusCode.OK, true, "Current limits", limits);
             }
             catch (error) {
-                const response = {
-                    success: false,
-                    message: error.message,
-                    error: error.message,
-                };
-                res.status(Interfaces_1.HttpStatusCode.BAD_REQUEST).json(response);
+                (0, helper_1.default)(res, Interfaces_1.HttpStatusCode.BAD_REQUEST, false, error.message, null, error);
             }
         });
         this.CreatePromotions = (req, res) => __awaiter(this, void 0, void 0, function* () {
             try {
                 const promotions = yield this.adminService.CreatePromotions(req.body);
-                const response = {
-                    success: true,
-                    message: "Promotion created successfully",
-                    data: promotions,
-                };
-                res.status(Interfaces_1.HttpStatusCode.CREATED).json(response);
+                (0, helper_1.default)(res, Interfaces_1.HttpStatusCode.OK, true, "Promotion created successfully", promotions);
             }
             catch (error) {
-                const response = {
-                    success: false,
-                    message: error.message,
-                    error: error.message,
-                };
-                res.status(Interfaces_1.HttpStatusCode.BAD_REQUEST).json(response);
+                (0, helper_1.default)(res, Interfaces_1.HttpStatusCode.BAD_REQUEST, false, error.message, null, error);
             }
         });
         this.createSession = (req, res) => __awaiter(this, void 0, void 0, function* () {
             try {
                 const session = yield this.adminService.createSsession(req.body);
-                const response = {
-                    success: true,
-                    message: "Session created successfully",
-                    data: session,
-                };
-                res.status(Interfaces_1.HttpStatusCode.CREATED).json(response);
+                (0, helper_1.default)(res, Interfaces_1.HttpStatusCode.OK, true, "Session created successfully", session);
             }
             catch (error) {
-                const response = {
-                    success: false,
-                    message: error.message,
-                    error: error.message,
-                };
-                res.status(Interfaces_1.HttpStatusCode.BAD_REQUEST).json(response);
+                (0, helper_1.default)(res, Interfaces_1.HttpStatusCode.BAD_REQUEST, false, error.message, null, error);
             }
         });
         this.getAllSessions = (req, res) => __awaiter(this, void 0, void 0, function* () {
             try {
                 const sessions = yield this.adminService.getAllSessions();
-                const response = {
-                    success: true,
-                    message: "Session got successfully",
-                    data: sessions,
-                };
-                res.status(Interfaces_1.HttpStatusCode.OK).json(response);
+                (0, helper_1.default)(res, Interfaces_1.HttpStatusCode.OK, true, "Session got successfully", sessions);
             }
             catch (error) {
-                const response = {
-                    success: false,
-                    message: error.message,
-                    error: error.message,
-                };
-                res.status(Interfaces_1.HttpStatusCode.BAD_REQUEST).json(response);
+                (0, helper_1.default)(res, Interfaces_1.HttpStatusCode.BAD_REQUEST, false, error.message, null, error);
             }
         });
         this.getSessionById = (req, res) => __awaiter(this, void 0, void 0, function* () {
             try {
                 const sessionId = req.params.sessionId;
                 const session = yield this.adminService.getSessionById(sessionId);
-                const response = {
-                    success: true,
-                    message: "Session got successfully",
-                    data: session,
-                };
-                res.status(Interfaces_1.HttpStatusCode.OK).json(response);
+                (0, helper_1.default)(res, Interfaces_1.HttpStatusCode.OK, true, "session got succesfully", session);
             }
             catch (error) {
-                const response = {
-                    success: false,
-                    message: error.message,
-                    error: error.message,
-                };
-                res.status(Interfaces_1.HttpStatusCode.BAD_REQUEST).json(response);
+                (0, helper_1.default)(res, Interfaces_1.HttpStatusCode.BAD_REQUEST, false, error.message, null, error);
             }
         });
         this.updateSessionData = (req, res) => __awaiter(this, void 0, void 0, function* () {
             try {
                 const sessionId = req.params.sessionId;
                 const updatedSession = yield this.adminService.updateSessionData(sessionId, req.body);
-                const response = {
-                    success: true,
-                    message: "Session updated successfully",
-                    data: updatedSession,
-                };
-                res.status(Interfaces_1.HttpStatusCode.CREATED).json(updatedSession);
+                (0, helper_1.default)(res, Interfaces_1.HttpStatusCode.OK, true, "session updated succesfully", updatedSession);
             }
             catch (error) {
-                const response = {
-                    success: false,
-                    message: error.message,
-                    error: error.message,
-                };
-                res.status(Interfaces_1.HttpStatusCode.BAD_REQUEST).json(response);
+                (0, helper_1.default)(res, Interfaces_1.HttpStatusCode.BAD_REQUEST, false, error.message, null, error);
             }
         });
         this.cancelSession = (req, res) => __awaiter(this, void 0, void 0, function* () {
@@ -489,20 +298,10 @@ class AdminController {
                 const sessionId = req.params.id;
                 const { status } = req.body;
                 const updatedSession = yield this.adminService.cancelSession(sessionId, status);
-                const response = {
-                    success: true,
-                    message: "Session cancelled successfully",
-                    data: updatedSession,
-                };
-                res.status(Interfaces_1.HttpStatusCode.OK).json(response);
+                (0, helper_1.default)(res, Interfaces_1.HttpStatusCode.OK, true, "session cancelled succesfully", updatedSession);
             }
             catch (error) {
-                const response = {
-                    success: false,
-                    message: error.message,
-                    error: error.message,
-                };
-                res.status(Interfaces_1.HttpStatusCode.BAD_REQUEST).json(response);
+                (0, helper_1.default)(res, Interfaces_1.HttpStatusCode.BAD_REQUEST, false, error.message, null, error);
             }
         });
         this.adminService = adminService;

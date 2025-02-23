@@ -7,6 +7,17 @@ import { ResponseModel } from "../interfaces/Interfaces";
 import { HttpStatusCode } from "../interfaces/Interfaces";
 import { IUserController } from "../interfaces/Interfaces";
 import { S3Service } from "../s3.service";
+import multer from "multer";
+import AWS from "aws-sdk";
+import { S3Client, GetObjectCommand } from "@aws-sdk/client-s3";
+import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
+import { v4 as uuidv4 } from "uuid";
+import sendResponse from "../helper/helper";
+import User from "../models/userModel";
+import dotenv from "dotenv";
+
+dotenv.config();
+
 export class UserController implements IUserController {
   private userService: IUserService;
 
@@ -14,7 +25,77 @@ export class UserController implements IUserController {
     this.userService = userService;
   }
   s3Service = new S3Service();
+  s3 = new AWS.S3({
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+    region: process.env.AWS_REGION,
+  });
+  upload = multer({ storage: multer.memoryStorage() });
+  public getSignedUrl = async (req: Request, res: Response): Promise<any> => {
+    const { fileName, fileType } = req.query;
+    console.log("AWS Region:", process.env.AWS_REGION);
+    console.log("AWS Bucket Name:", process.env.S3_BUCKET_NAME);
 
+    if (!fileName || !fileType) {
+      return res.status(400).json({ error: "Missing fileName or fileType" });
+    }
+    const encodedFileName = encodeURIComponent(fileName as string);
+
+    const params = {
+      Bucket: process.env.S3_BUCKET_NAME as string,
+      Key: `profiles/${encodedFileName}`,
+      Expires: 60,
+      ContentType: fileType,
+    };
+
+    try {
+      const signedUrl = await this.s3.getSignedUrlPromise("putObject", params);
+      res.json({
+        signedUrl,
+        fileUrl: `https://${process.env.S3_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/profiles/${encodedFileName}`,
+      });
+    } catch (err) {
+      console.error("Error generating signed URL:", err);
+      res.status(500).json({
+        error: "Error generating signed URL",
+        details: (err as any).message,
+      });
+    }
+  };
+
+  public saveProfile = async (req: Request, res: Response): Promise<void> => {
+    const { email, profileImageUrl } = req.body;
+
+    try {
+      const user = await User.findOneAndUpdate(
+        { email },
+        { profileImageUrl },
+        { new: true, upsert: true }
+      );
+
+      res.json({ message: "Profile updated successfully", user });
+    } catch (err) {
+      res.status(500).json({ error: "Error updating profile", details: err });
+    }
+  };
+  public getProfileById = async (
+    req: Request,
+    res: Response
+  ): Promise<void> => {
+    const { email } = req.query;
+
+    try {
+      const user = await User.findOne({ email });
+
+      if (!user) {
+        res.status(404).json({ error: "User not found" });
+      }
+
+      res.json({ user });
+    } catch (err) {
+      res.status(500).json({ error: "Error fetching profile", details: err });
+    }
+  };
   //signup
   public signup = async (req: Request, res: Response): Promise<void> => {
     const { name, email, password, role } = req.body;
@@ -194,54 +275,19 @@ export class UserController implements IUserController {
           .json({ message: "User not found" });
         return;
       }
-      let totalPortfolioValue = 0;
-      let overallProfit = 0;
-      let todaysProfit = 0;
-      const updatedPortfolio = await Promise.all(
-        user.portfolio.map(async (item) => {
-          const stock = await this.userService.getStockById(
-            item.stockId instanceof mongoose.Types.ObjectId
-              ? item.stockId.toString()
-              : item.stockId
-          );
-          if (!stock) return item;
 
-          const stockValue = stock.price * item.quantity;
-          const profit = stockValue - stock.open * item.quantity;
-          const todaysChange = stock.changePercent;
-
-          totalPortfolioValue += stockValue;
-          overallProfit += profit;
-          todaysProfit += (profit * parseFloat(todaysChange)) / 100;
-
-          return {
-            ...item,
-            stockData: stock,
-            currentValue: stockValue,
-            overallProfit: profit,
-            todaysProfit,
-          };
-        })
-      );
+      const portfolioData = await this.userService.getUpdatedPortfolio(user);
 
       const response: ResponseModel = {
         success: true,
         message: "User portfolio",
-        data: {
-          portfolio: updatedPortfolio,
-          totalPortfolioValue,
-          overallProfit,
-          todaysProfit,
-        },
+        data: portfolioData,
       };
       res.status(HttpStatusCode.OK).json(response);
     } catch (error: any) {
-      const response: ResponseModel = {
-        success: false,
-        message: error.message,
-        error: error.message,
-      };
-      res.status(HttpStatusCode.BAD_REQUEST).json(response);
+      res
+        .status(HttpStatusCode.BAD_REQUEST)
+        .json({ success: false, message: error.message, error: error.message });
     }
   };
   //placeOrder
@@ -296,7 +342,14 @@ export class UserController implements IUserController {
     res: Response
   ): Promise<void> => {
     try {
-      const transactions = await this.userService.getTransactions(req.userId);
+      const page = parseInt(req.query.page as string, 10) || 1;
+      const limit = parseInt(req.query.limit as string, 10) || 10;
+      const skip = (page - 1) * limit;
+      const transactions = await this.userService.getTransactions(
+        req.userId,
+        skip,
+        limit
+      );
       const response: ResponseModel = {
         success: true,
         message: "Transactions details",
@@ -613,8 +666,11 @@ export class UserController implements IUserController {
 
   public getUploadURL = async (req: Request, res: Response): Promise<void> => {
     try {
-      const uploadURL = await this.s3Service.generateUploadURL();
-      res.status(200).json({ uploadURL });
+      const { userId } = req.body;
+      const { url, Key } = await this.s3Service.generateUploadURL(userId);
+      console.log("Generated Upload URL:", url);
+      console.log("Generated S3 Key:", Key);
+      res.status(200).json({ url, Key });
     } catch (error) {
       res.status(500).json({ error: "Error generating upload URL" });
     }

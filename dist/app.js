@@ -33,7 +33,6 @@ const server_1 = require("./server");
 dotenv_1.default.config();
 // Create the express app
 const app = (0, express_1.default)();
-const PORT = 8080;
 (0, db_1.default)();
 (0, redis_1.connectRedis)();
 const newOrderRepostory = new newOrder_1.newOrderRepository();

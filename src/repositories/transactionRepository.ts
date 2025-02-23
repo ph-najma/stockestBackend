@@ -2,18 +2,23 @@ import transactionModel from "../models/transactionModel";
 import { ITransaction, IStock, IOrder } from "../interfaces/Interfaces";
 import { ITransactionRepository } from "../interfaces/Interfaces";
 export class transactionRepository implements ITransactionRepository {
-  async getTransactions(userId: string | undefined): Promise<ITransaction[]> {
+  async getTransactions(
+    userId: string | undefined,
+    skip: number,
+    limit: number
+  ): Promise<ITransaction[]> {
     const transactions = await transactionModel
       .find({
         $or: [{ buyer: userId }, { seller: userId }],
       })
+      .skip(skip)
+      .limit(limit)
       .populate("buyer")
       .populate("seller")
       .populate("buyOrder")
       .populate("sellOrder")
       .populate("stock");
 
-    console.log("Fetched transactions:", transactions);
     return transactions;
   }
   async getAllTransactions(): Promise<ITransaction[]> {
@@ -50,7 +55,9 @@ export class transactionRepository implements ITransactionRepository {
   }
   async getTradeDiary(userId: string | undefined): Promise<any> {
     try {
-      const transactions = await this.getTransactions(userId); // Get the user's transactions
+      const skip = 0;
+      const limit = 0;
+      const transactions = await this.getTransactions(userId, skip, limit); // Get the user's transactions
 
       let totalTrades = 0;
       let totalPnl = 0;

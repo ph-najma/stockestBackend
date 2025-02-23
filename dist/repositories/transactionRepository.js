@@ -15,18 +15,19 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.transactionRepository = void 0;
 const transactionModel_1 = __importDefault(require("../models/transactionModel"));
 class transactionRepository {
-    getTransactions(userId) {
+    getTransactions(userId, skip, limit) {
         return __awaiter(this, void 0, void 0, function* () {
             const transactions = yield transactionModel_1.default
                 .find({
                 $or: [{ buyer: userId }, { seller: userId }],
             })
+                .skip(skip)
+                .limit(limit)
                 .populate("buyer")
                 .populate("seller")
                 .populate("buyOrder")
                 .populate("sellOrder")
                 .populate("stock");
-            console.log("Fetched transactions:", transactions);
             return transactions;
         });
     }
@@ -69,7 +70,9 @@ class transactionRepository {
     getTradeDiary(userId) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const transactions = yield this.getTransactions(userId); // Get the user's transactions
+                const skip = 0;
+                const limit = 0;
+                const transactions = yield this.getTransactions(userId, skip, limit); // Get the user's transactions
                 let totalTrades = 0;
                 let totalPnl = 0;
                 let totalCharges = 0;

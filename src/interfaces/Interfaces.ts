@@ -232,7 +232,11 @@ export interface IStockRepository {
 }
 
 export interface ITransactionRepository {
-  getTransactions(userId: string | undefined): Promise<ITransaction[]>;
+  getTransactions(
+    userId: string | undefined,
+    skip: number,
+    limit: number
+  ): Promise<ITransaction[]>;
   getAllTransactions(): Promise<ITransaction[]>;
   getFeeCollectionSummary(): Promise<number>;
   getTradeDiary(userId: string | undefined): Promise<any>;
@@ -322,7 +326,11 @@ export interface IUserService {
     stopPrice: number,
     IsIntraday: Boolean | undefined
   ): Promise<IOrder | null>;
-  getTransactions(userId: string | undefined): Promise<ITransaction[]>;
+  getTransactions(
+    userId: string | undefined,
+    skip: number,
+    limit: number
+  ): Promise<ITransaction[]>;
   updatePortfolioAfterSell(
     userId: string,
     stockId: string,
@@ -352,6 +360,7 @@ export interface IUserService {
   getHistorical(symbol: string | undefined): Promise<any>;
   countOrders(userId: string | undefined): Promise<number>;
   refreshToken(refreshToken: string): Promise<string>;
+  getUpdatedPortfolio(user: IUser): Promise<any>;
 }
 export interface IAdminService {
   loginAdmin(email: string, password: string): Promise<{ token: string }>;
@@ -447,6 +456,8 @@ export interface IUserController {
   getBySearch(req: Request, res: Response): Promise<void>;
   generate(req: Request, res: Response): Promise<void>;
   refreshToken(req: Request, res: Response): Promise<void>;
-
+  getProfileById(req: Request, res: Response): Promise<void>;
   getUploadURL(req: Request, res: Response): Promise<void>;
+  saveProfile(req: Request, res: Response): Promise<void>;
+  getSignedUrl(req: Request, res: Response): Promise<void>;
 }
