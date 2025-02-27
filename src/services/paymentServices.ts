@@ -1,14 +1,21 @@
-import { PaymentRepository } from "../repositories/paymentRepository";
-import { UserRepository } from "../repositories/userRepository";
-import { sessionRepository } from "../repositories/sessionRepository";
-export class PaymentService {
-  private paymentRepository: PaymentRepository;
-  private userRepository: UserRepository;
-  private sessionRepository: sessionRepository;
-  constructor() {
-    this.paymentRepository = new PaymentRepository();
-    this.userRepository = new UserRepository();
-    this.sessionRepository = new sessionRepository();
+import { ISession } from "../interfaces/modelInterface";
+import { IPaymentService } from "../interfaces/serviceInterface";
+import { IPaymentRepository } from "../interfaces/repositoryInterface";
+import { IuserRepsitory } from "../interfaces/repositoryInterface";
+import { ISessionRepository } from "../interfaces/repositoryInterface";
+
+export class PaymentService implements IPaymentService {
+  private paymentRepository: IPaymentRepository;
+  private userRepository: IuserRepsitory;
+  private sessionRepository: ISessionRepository;
+  constructor(
+    paymentRepository: IPaymentRepository,
+    userRepository: IuserRepsitory,
+    sessionRepository: ISessionRepository
+  ) {
+    this.paymentRepository = paymentRepository;
+    this.userRepository = userRepository;
+    this.sessionRepository = sessionRepository;
   }
 
   async createOrder(
@@ -50,7 +57,7 @@ export class PaymentService {
   async updateSession(
     sessionId: string,
     userId: string | undefined
-  ): Promise<any> {
+  ): Promise<ISession | null> {
     const updateddata = await this.sessionRepository.assignStudent(
       sessionId,
       userId

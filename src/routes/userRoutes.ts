@@ -1,11 +1,10 @@
-import express, { Router, Request, Response, NextFunction } from "express";
-import passport, { use } from "passport";
+import express, { Router, Request, Response } from "express";
 import { OAuth2Client } from "google-auth-library";
 import { verifyTokenWithRole } from "../middleware/auth";
 import dotenv from "dotenv";
 import { UserController } from "../controllers/userController";
 import User from "../models/userModel";
-import { IUser } from "../interfaces/Interfaces";
+import { IUser } from "../interfaces/modelInterface";
 import jwt from "jsonwebtoken";
 import { checkPortfolio } from "../controllers/checkPortfolio";
 import { UserService } from "../services/userService";
@@ -17,17 +16,22 @@ import { PromotionRepository } from "../repositories/promotionRepository";
 import { watchlistRepostory } from "../repositories/watchlistRepsoitory";
 import { PaymentController } from "../controllers/paymentController";
 import { sessionRepository } from "../repositories/sessionRepository";
-
+import { PaymentService } from "../services/paymentServices";
+import { PaymentRepository } from "../repositories/paymentRepository";
 import orderModel from "../models/orderModel";
-import { main } from "../gemini";
+import { IOrder } from "../interfaces/modelInterface";
+import { Model } from "mongoose";
 const userRepository = new UserRepository();
+const payemntRepository = new PaymentRepository();
 const stockRepository = new StockRepository();
 const TransactionRepository = new transactionRepository();
-const orderRepository = new OrderRepository(orderModel);
+const orderRepository = new OrderRepository(orderModel as Model<IOrder>);
 const promotionRepository = new PromotionRepository();
 const watchlistRepository = new watchlistRepostory();
-const paymentController = new PaymentController();
 const sessionRepsoitory = new sessionRepository();
+const paymentController = new PaymentController(
+  new PaymentService(payemntRepository, userRepository, sessionRepsoitory)
+);
 
 const userController = new UserController(
   new UserService(
@@ -141,40 +145,36 @@ router.get(
   verifyTokenWithRole("user"),
   userController.getActiveSessions
 );
-router.post("/get-upload-url", userController.getUploadURL);
+
 router.get(
   "/get-signed-url",
   verifyTokenWithRole("user"),
   userController.getSignedUrl
 );
+
 router.post(
   "/update-profile",
   verifyTokenWithRole("user"),
   userController.saveProfile
 );
-router.get(
-  "/get-profile",
-  verifyTokenWithRole("user"),
-  userController.getProfileById
-);
 
 router.post("/generate", userController.generate);
 
 // Google OAuth routes
-router.get(
-  "/auth/google",
-  passport.authenticate("google", {
-    scope: ["profile", "email"], // Request access to the user's profile and email
-  })
-);
+// router.get(
+//   "/auth/google",
+//   passport.authenticate("google", {
+//     scope: ["profile", "email"], // Request access to the user's profile and email
+//   })
+// );
 
-router.get(
-  "/auth/google/callback",
-  passport.authenticate("google", { failureRedirect: "/" }),
-  (req: Request, res: Response) => {
-    res.redirect("/home"); // Redirect on successful authentication
-  }
-);
+// router.get(
+//   "/auth/google/callback",
+//   passport.authenticate("google", { failureRedirect: "/" }),
+//   (req: Request, res: Response) => {
+//     res.redirect("/home"); // Redirect on successful authentication
+//   }
+// );
 
 router.get("/logout", (req: Request, res: Response) => {
   req.logout((err: any) => {

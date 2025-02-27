@@ -35,7 +35,6 @@ const orderRepository = new orderRepository_1.OrderRepository(orderModel_1.defau
 const promotionRepository = new promotionRepository_1.PromotionRepository();
 const watchlistRepository = new watchlistRepsoitory_1.watchlistRepostory();
 const sessionRepsoitory = new sessionRepository_1.sessionRepository();
-const mongoose = require("mongoose");
 const stockrepository = new stockRepository_1.StockRepository();
 const server = http_1.default.createServer(app_1.default);
 const io = new socket_io_1.Server(server, {
@@ -98,7 +97,7 @@ io.on("connection", (socket) => __awaiter(void 0, void 0, void 0, function* () {
                 try {
                     const allStocks = yield stockrepository.getAllStocks();
                     const watchlistStocks = allStocks.filter((stock) => watchlist.includes(stock.symbol));
-                    socket.emit("stockUpdate", watchlistStocks);
+                    socket.emit("WatchlistStockUpdate", watchlistStocks);
                 }
                 catch (error) {
                     console.error("Error fetching watchlist data:", error);
@@ -129,6 +128,9 @@ io.on("connection", (socket) => __awaiter(void 0, void 0, void 0, function* () {
                 socket.emit("error", "Room not found");
             }
         });
+        socket.on("call-ended", ({ roomCode }) => {
+            io.to(roomCode).emit("call-ended");
+        });
         // 🔹 WebRTC Signaling
         socket.on("offer", ({ roomCode, offer }) => {
             socket.to(roomCode).emit("offer", offer);
@@ -144,6 +146,7 @@ io.on("connection", (socket) => __awaiter(void 0, void 0, void 0, function* () {
             clearInterval(stockUpdateInterval);
             clearInterval(portfolioUpdateInterval);
             console.log(`👋 User ${user.email} disconnected: ${socket.id}`);
+            io.emit("call-ended");
         });
     }
     catch (error) {

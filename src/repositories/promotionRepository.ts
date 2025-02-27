@@ -1,7 +1,8 @@
 import Promotion from "../models/promoModel";
-import { IpromotionRepsoitory } from "../interfaces/Interfaces";
+import { IpromotionRepsoitory } from "../interfaces/repositoryInterface";
+import { IPromotion } from "../interfaces/modelInterface";
 export class PromotionRepository implements IpromotionRepsoitory {
-  async createPromotion(data: any): Promise<any> {
+  async createPromotion(data: IPromotion): Promise<IPromotion | null> {
     const updatedPromotion = await Promotion.findOneAndUpdate(
       {},
       { $set: data },
@@ -9,7 +10,7 @@ export class PromotionRepository implements IpromotionRepsoitory {
     );
     return updatedPromotion;
   }
-  async findPromotion(): Promise<any> {
+  async findPromotion(): Promise<IPromotion | null> {
     return await Promotion.findOne();
   }
 }

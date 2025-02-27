@@ -2,7 +2,7 @@ import Order from "../models/orderModel";
 import transactionModel from "../models/transactionModel";
 import Stock from "../models/stockModel";
 import User from "../models/userModel";
-import { ITransaction, IStock, IUser } from "../interfaces/Interfaces";
+import { ITransaction, IStock, IUser } from "../interfaces/modelInterface";
 import { io } from "../server";
 
 export class newOrderRepository {
@@ -48,7 +48,7 @@ export class newOrderRepository {
           }
         }
 
-        if (bestOrder) {
+        if (bestOrder && order.user.toString() !== bestOrder.user.toString()) {
           const matchPrice = bestOrder.price;
           const matchedQuantity = Math.min(quantity, bestOrder.quantity);
 

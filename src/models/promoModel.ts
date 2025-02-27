@@ -1,7 +1,6 @@
-import mongoose, { Schema, Document } from "mongoose";
+import mongoose, { Schema } from "mongoose";
 
-// Define interfaces for each type of promotion
-import { IPromotion } from "../interfaces/Interfaces";
+import { IPromotion } from "../interfaces/modelInterface";
 
 // Define the schema
 const promotionSchema = new Schema<IPromotion>({

@@ -1,29 +1,5 @@
-import mongoose, { Types, FilterQuery, UpdateQuery, Document } from "mongoose";
+import mongoose, { Types, Document } from "mongoose";
 
-export interface IBaseRepository<T> {
-  // Find by ID
-  findById(id: string | undefined): Promise<T | null>;
-
-  // Find one
-  findOne(filter: FilterQuery<T>): Promise<T | null>;
-
-  // Find all
-  findAll(filter?: FilterQuery<T>): Promise<T[]>;
-
-  // Create
-  create(data: Partial<T>): Promise<T>;
-
-  // Update by ID
-  updateById(
-    id: string | undefined,
-    updateData: UpdateQuery<T>
-  ): Promise<T | null>;
-
-  // Delete by ID
-  deleteById(id: string): Promise<T | null>;
-}
-
-type ObjectId = mongoose.Types.ObjectId;
 export interface IUser extends Document {
   _id: mongoose.Types.ObjectId;
   name: string | undefined;
@@ -122,7 +98,6 @@ export interface ILoyaltyRewards {
   timeframeInDays: number;
 }
 
-// Define the Promotion schema interface
 export interface IPromotion extends Document {
   signupBonus: ISignupBonus;
   referralBonus: IReferralBonus;
@@ -146,20 +121,4 @@ export interface ILimit extends Document {
   maxBuyLimit: number;
   maxSellLimit: number;
   timeframeInHours: number;
-}
-export interface ResponseModel<T = any> {
-  success: boolean;
-  message: string;
-  data?: T;
-  error?: string;
-}
-
-export enum HttpStatusCode {
-  OK = 200,
-  CREATED = 201,
-  BAD_REQUEST = 400,
-  UNAUTHORIZED = 401,
-  FORBIDDEN = 403,
-  NOT_FOUND = 404,
-  INTERNAL_SERVER_ERROR = 500,
 }

@@ -27,16 +27,14 @@ class watchlistRepostory {
             if (!watchlist) {
                 return null;
             }
-            // Fetch the latest stock information for each unique symbol
             const uniqueStockSymbols = [
                 ...new Set(watchlist.stocks.map((stock) => stock.symbol)),
             ];
             const stockDataPromises = uniqueStockSymbols.map((symbol) => stockModel_1.default.findOne({ symbol })
-                .sort({ timestamp: -1 }) // Get the most recent entry based on the timestamp
-                .select("symbol price change volume timestamp") // Select relevant fields
+                .sort({ timestamp: -1 })
+                .select("symbol price change volume timestamp")
                 .lean());
             const stockData = yield Promise.all(stockDataPromises);
-            // Add the stock data back to the watchlist object
             const enrichedWatchlist = Object.assign(Object.assign({}, watchlist.toObject()), { stocks: stockData.filter((data) => data) });
             return enrichedWatchlist;
         });
@@ -46,12 +44,9 @@ class watchlistRepostory {
             if (!userId) {
                 throw new Error("User ID is required.");
             }
-            // Find the user's watchlist
             let watchlist = yield watchlistModel_1.default.findOne({ user: userId });
             if (watchlist) {
-                // Check if the stock is already in the watchlist
                 const stockExists = watchlist.stocks.some((stock) => stock.symbol === stockSymbol);
-                // If the stock is not in the watchlist, add it
                 if (!stockExists) {
                     watchlist.stocks.push({ symbol: stockSymbol, addedAt: new Date() });
                     yield watchlist.save();

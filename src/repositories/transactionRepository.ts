@@ -1,6 +1,7 @@
 import transactionModel from "../models/transactionModel";
-import { ITransaction, IStock, IOrder } from "../interfaces/Interfaces";
-import { ITransactionRepository } from "../interfaces/Interfaces";
+import { ITradeDiary } from "../interfaces/Interfaces";
+import { ITransaction, IStock, IOrder } from "../interfaces/modelInterface";
+import { ITransactionRepository } from "../interfaces/repositoryInterface";
 export class transactionRepository implements ITransactionRepository {
   async getTransactions(
     userId: string | undefined,
@@ -53,7 +54,7 @@ export class transactionRepository implements ITransactionRepository {
       throw error;
     }
   }
-  async getTradeDiary(userId: string | undefined): Promise<any> {
+  async getTradeDiary(userId: string | undefined): Promise<ITradeDiary> {
     try {
       const skip = 0;
       const limit = 0;

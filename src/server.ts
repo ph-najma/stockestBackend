@@ -11,7 +11,7 @@ import { PromotionRepository } from "./repositories/promotionRepository";
 import { watchlistRepostory } from "./repositories/watchlistRepsoitory";
 import User from "./models/userModel";
 import { sessionRepository } from "./repositories/sessionRepository";
-import { IUserService } from "./interfaces/Interfaces";
+import { IUserService } from "./interfaces/serviceInterface";
 import { UserService } from "./services/userService";
 import orderModel from "./models/orderModel";
 
@@ -22,7 +22,6 @@ const orderRepository = new OrderRepository(orderModel);
 const promotionRepository = new PromotionRepository();
 const watchlistRepository = new watchlistRepostory();
 const sessionRepsoitory = new sessionRepository();
-const mongoose = require("mongoose");
 
 const stockrepository = new StockRepository();
 const server = http.createServer(app);
@@ -110,7 +109,7 @@ io.on("connection", async (socket) => {
           const watchlistStocks = allStocks.filter((stock) =>
             watchlist.includes(stock.symbol)
           );
-          socket.emit("stockUpdate", watchlistStocks);
+          socket.emit("WatchlistStockUpdate", watchlistStocks);
         } catch (error) {
           console.error("Error fetching watchlist data:", error);
         }
@@ -142,6 +141,9 @@ io.on("connection", async (socket) => {
         socket.emit("error", "Room not found");
       }
     });
+    socket.on("call-ended", ({ roomCode }) => {
+      io.to(roomCode).emit("call-ended");
+    });
 
     // 🔹 WebRTC Signaling
     socket.on("offer", ({ roomCode, offer }) => {
@@ -161,6 +163,7 @@ io.on("connection", async (socket) => {
       clearInterval(stockUpdateInterval);
       clearInterval(portfolioUpdateInterval);
       console.log(`👋 User ${user.email} disconnected: ${socket.id}`);
+      io.emit("call-ended");
     });
   } catch (error) {
     console.log("❌ Invalid token. Disconnecting...");

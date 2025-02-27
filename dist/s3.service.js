@@ -34,7 +34,8 @@ class S3Service {
     // Generate a Signed Upload URL (PUT)
     generateUploadURL(userId) {
         return __awaiter(this, void 0, void 0, function* () {
-            const Key = `my-user-profile-photos/${(0, uuid_1.v4)()}.jpg`; // Unique file name
+            const Key = `my-user-profile-photos/${(0, uuid_1.v4)()}.jpg`; // Use backticks
+            // Unique file name
             const command = new client_s3_1.PutObjectCommand({
                 Bucket: this.bucketName,
                 Key: Key,

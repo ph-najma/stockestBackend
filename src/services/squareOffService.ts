@@ -1,50 +1,60 @@
-// services/squareOffService.ts
 import OrderModel from "../models/orderModel";
-import { IOrder } from "../interfaces/Interfaces";
 import StockModel from "../models/stockModel";
+import { IOrder } from "../interfaces/modelInterface";
 
-export async function autoSquareOff(): Promise<void> {
-  try {
-    const currentTime = new Date();
+export class SquareOffService {
+  private orderModel;
+  private stockModel;
 
-    // Define the cutoff time for intraday orders (e.g., 3:15 PM)
-    const squareOffTime = new Date();
-    squareOffTime.setHours(15, 15, 0, 0);
+  constructor(orderModel = OrderModel, stockModel = StockModel) {
+    this.orderModel = orderModel;
+    this.stockModel = stockModel;
+  }
 
-    if (currentTime >= squareOffTime) {
-      // Fetch all pending intraday orders
-      const intradayOrders = await OrderModel.find({
-        isIntraday: true,
-        status: "PENDING",
-      }).populate("stock");
+  public async autoSquareOff(): Promise<void> {
+    try {
+      const currentTime = new Date();
+      const squareOffTime = new Date();
+      squareOffTime.setHours(15, 15, 0, 0);
+
+      if (currentTime < squareOffTime) {
+        console.log("Square-off time not reached yet.");
+        return;
+      }
+
+      const intradayOrders = await this.orderModel
+        .find({ isIntraday: true, status: "PENDING" })
+        .populate("stock");
+
+      if (intradayOrders.length === 0) {
+        console.log("No pending intraday orders for square-off.");
+        return;
+      }
 
       const squareOffPromises = intradayOrders.map(async (order: IOrder) => {
-        // Determine the type of order needed for square-off
         const squareOffType = order.type === "BUY" ? "SELL" : "BUY";
 
-        // Fetch current stock price
-        const stock = await StockModel.findById(order.stock);
+        const stock = await this.stockModel.findById(order.stock);
         if (!stock) {
           console.error(`Stock not found for ID: ${order.stock}`);
           return;
         }
 
-        // Place the square-off order
-        const squareOffOrder = new OrderModel({
+        // Create and save square-off order
+        const squareOffOrder = new this.orderModel({
           user: order.user,
           stock: order.stock,
           type: squareOffType,
           orderType: "MARKET",
           quantity: order.quantity,
-          price: stock.price, // Current market price
+          price: stock.price,
           status: "COMPLETED",
           isIntraday: true,
         });
 
-        // Save the square-off order
         await squareOffOrder.save();
 
-        // Mark the original order as completed
+        // Mark original order as completed
         order.status = "COMPLETED";
         order.completedAt = new Date();
         await order.save();
@@ -54,10 +64,8 @@ export async function autoSquareOff(): Promise<void> {
 
       await Promise.all(squareOffPromises);
       console.log("All intraday orders squared off.");
-    } else {
-      console.log("Square-off time not reached yet.");
+    } catch (error) {
+      console.error("Error during auto square-off:", error);
     }
-  } catch (error) {
-    console.error("Error during auto square-off:", error);
   }
 }

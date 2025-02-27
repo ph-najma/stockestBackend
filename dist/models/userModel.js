@@ -47,8 +47,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const mongoose_1 = __importStar(require("mongoose"));
 const bcryptjs_1 = __importDefault(require("bcryptjs"));
-// Define an interface for the User document
-// Define the schema
 const userSchema = new mongoose_1.Schema({
     name: {
         type: String,

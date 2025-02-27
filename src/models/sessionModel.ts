@@ -1,5 +1,5 @@
-import mongoose, { Schema, Document, Model } from "mongoose";
-import { ISession } from "../interfaces/Interfaces";
+import mongoose, { Schema, Model } from "mongoose";
+import { ISession } from "../interfaces/modelInterface";
 
 const sessionSchema: Schema = new Schema<ISession>({
   student_id: { type: Schema.Types.ObjectId, ref: "User" },

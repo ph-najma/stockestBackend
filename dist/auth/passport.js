@@ -14,52 +14,34 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const passport_1 = __importDefault(require("passport"));
 const passport_google_oauth20_1 = require("passport-google-oauth20");
-const userModel_1 = __importDefault(require("../models/userModel"));
 const dotenv_1 = __importDefault(require("dotenv"));
+const authService_1 = require("./authService");
 dotenv_1.default.config();
-// Correct the strategy options and callback types
+const authService = new authService_1.AuthService();
 const googleStrategyOptions = {
     clientID: process.env.GOOGLE_CLIENT_ID,
     clientSecret: process.env.GOOGLE_CLIENT_SECRET,
     callbackURL: process.env.CALL_BACK_URL,
 };
-passport_1.default.use(new passport_google_oauth20_1.Strategy(googleStrategyOptions, (accessToken, refreshToken, profile, done) => __awaiter(void 0, void 0, void 0, function* () {
-    var _a, _b, _c;
+passport_1.default.use(new passport_google_oauth20_1.Strategy(googleStrategyOptions, (_, __, profile, done) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        // Check if emails exist on profile and ensure it's safely accessed
-        const email = profile.emails && ((_a = profile.emails[0]) === null || _a === void 0 ? void 0 : _a.value);
-        if (!email) {
-            return done(new Error("Email not found in Google profile"));
-        }
-        // Find or create a user with the Google profile info
-        const user = (yield userModel_1.default.findOne({
-            googleId: profile.id,
-        }));
-        if (!user) {
-            // Create a new user if not found
-            const newUser = new userModel_1.default({
-                googleId: profile.id,
-                name: profile.displayName,
-                email,
-                profilePicture: (_c = (_b = profile.photos) === null || _b === void 0 ? void 0 : _b[0]) === null || _c === void 0 ? void 0 : _c.value,
-            });
-            yield newUser.save();
-            return done(null, newUser);
-        }
+        const user = yield authService.handleGoogleLogin(profile);
         return done(null, user);
     }
     catch (err) {
-        console.error(err);
         return done(err);
     }
 })));
 passport_1.default.serializeUser(((user, done) => {
     done(null, user._id);
 }));
-// Deserialize the user from the session
-passport_1.default.deserializeUser((id, done) => {
-    userModel_1.default.findById(id, (err, user) => {
-        done(err, user);
-    });
-});
+passport_1.default.deserializeUser((id, done) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const user = yield authService.authRepository.findUserById(id);
+        done(null, user);
+    }
+    catch (err) {
+        done(err);
+    }
+}));
 exports.default = passport_1.default;

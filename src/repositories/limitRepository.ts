@@ -1,5 +1,5 @@
 import Limit from "../models/limitModel";
-import { ILimit } from "../interfaces/Interfaces";
+import { ILimit } from "../interfaces/modelInterface";
 
 export interface ILimitRepository {
   updateLimit(limitData: Partial<ILimit>): Promise<ILimit | null>;

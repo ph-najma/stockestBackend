@@ -10,6 +10,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.OrderRepository = void 0;
+const Interfaces_1 = require("../interfaces/Interfaces");
 const BaseRepository_1 = require("./BaseRepository");
 class OrderRepository extends BaseRepository_1.BaseRepository {
     constructor(model) {
@@ -38,7 +39,7 @@ class OrderRepository extends BaseRepository_1.BaseRepository {
     findCompletedOrders() {
         return __awaiter(this, void 0, void 0, function* () {
             return this.model
-                .find({ status: "COMPLETED" })
+                .find({ status: Interfaces_1.OrderStatus.COMPLETED })
                 .sort({ createdAt: -1 })
                 .populate("user")
                 .populate("stock")
@@ -71,7 +72,7 @@ class OrderRepository extends BaseRepository_1.BaseRepository {
     cancelOrder(orderId) {
         return __awaiter(this, void 0, void 0, function* () {
             const updatedOrder = yield this.model
-                .findByIdAndUpdate(orderId, { status: "FAILED" }, { new: true })
+                .findByIdAndUpdate(orderId, { status: Interfaces_1.OrderStatus.FAILED }, { new: true })
                 .exec();
             return updatedOrder;
         });

@@ -1,37 +1,30 @@
-import mongoose, { Types, FilterQuery, UpdateQuery, Document } from "mongoose";
-import { Request, Response } from "express";
+import mongoose, { FilterQuery, UpdateQuery } from "mongoose";
+
 import {
   ITransaction,
   ILimit,
   IWatchlist,
   ISession,
   IStock,
-  ISignupBonus,
   IUser,
   IOrder,
   IPromotion,
 } from "./modelInterface";
 import { ILimitOrderQuery } from "./Interfaces";
 export interface IBaseRepository<T> {
-  // Find by ID
   findById(id: string | undefined): Promise<T | null>;
 
-  // Find one
   findOne(filter: FilterQuery<T>): Promise<T | null>;
 
-  // Find all
   findAll(filter?: FilterQuery<T>): Promise<T[]>;
 
-  // Create
   create(data: Partial<T>): Promise<T>;
 
-  // Update by ID
   updateById(
     id: string | undefined,
     updateData: UpdateQuery<T>
   ): Promise<T | null>;
 
-  // Delete by ID
   deleteById(id: string): Promise<T | null>;
 }
 
@@ -48,15 +41,14 @@ export interface IOrderRepository extends IBaseRepository<IOrder> {
   ): Promise<IOrder[] | null>;
   findCompletedOrders(): Promise<IOrder[]>;
   findOrdersByType(query: ILimitOrderQuery): Promise<IOrder[]>;
-  // createOrder(orderData: Partial<IOrder>): Promise<IOrder>;
   getAllOrders(): Promise<IOrder[]>;
   cancelOrder(orderId: string): Promise<IOrder | null>;
   countOrdersByUser(userId: string | undefined): Promise<number>;
 }
 
 export interface IpromotionRepsoitory {
-  createPromotion(data: any): Promise<any>;
-  findPromotion(): Promise<any>;
+  createPromotion(data: IPromotion): Promise<IPromotion | null>;
+  findPromotion(): Promise<IPromotion | null>;
 }
 
 export interface ISessionRepository {
@@ -97,7 +89,11 @@ export interface IStockRepository {
 }
 
 export interface ITransactionRepository {
-  getTransactions(userId: string | undefined): Promise<ITransaction[]>;
+  getTransactions(
+    userId: string | undefined,
+    skip: number,
+    limit: number
+  ): Promise<ITransaction[]>;
   getAllTransactions(): Promise<ITransaction[]>;
   getFeeCollectionSummary(): Promise<number>;
   getTradeDiary(userId: string | undefined): Promise<any>;
@@ -119,13 +115,12 @@ export interface IuserRepsitory {
   findAdminByEmail(email: string): Promise<IUser | null>;
   findAllUsers(): Promise<IUser[]>;
   saveUser(user: IUser): Promise<IUser>;
-  // Required method
-  // updatePortfolio(
-  //   userId: string,
-  //   portfolioData: { stockId: string; quantity: number }
-  // ): Promise<IUser | null>;
+
   getUserBalance(userId: string): Promise<number | null>;
-  updateUserBalance(userId: string, amount: number): Promise<IUser | null>;
+  updateUserBalance(
+    userId: string | undefined,
+    amount: number
+  ): Promise<IUser | null>;
   updatePortfolioAfterSell(
     userId: string,
     stockId: string,
@@ -143,4 +138,13 @@ export interface IWatchlistRepository {
     userId: string | undefined,
     stockId: string
   ): Promise<IWatchlist>;
+}
+
+export interface IPaymentRepository {
+  createOrder(amount: number): Promise<Razorpay.Order>;
+  verifyPaymentSignature(
+    orderId: string,
+    paymentId: string,
+    signature: string
+  ): boolean;
 }

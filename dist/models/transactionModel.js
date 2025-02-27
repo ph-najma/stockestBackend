@@ -33,7 +33,6 @@ var __importStar = (this && this.__importStar) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-// models/transactionModel.ts
 const mongoose_1 = __importStar(require("mongoose"));
 const transactionSchema = new mongoose_1.Schema({
     buyer: { type: mongoose_1.Schema.Types.ObjectId, ref: "User", required: true },

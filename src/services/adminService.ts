@@ -1,24 +1,25 @@
 import mongoose from "mongoose";
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
+import { ILimitOrderQuery } from "../interfaces/Interfaces";
+import { IAdminService } from "../interfaces/serviceInterface";
 import {
-  IOrderRepository,
+  IUser,
+  ITransaction,
+  IStock,
+  ISession,
+  IOrder,
+  ILimit,
+} from "../interfaces/modelInterface";
+import {
   ITransactionRepository,
+  IStockRepository,
   ISessionRepository,
   IpromotionRepsoitory,
-  IStockRepository,
-  IuserRepsitory,
+  IOrderRepository,
   ILimitRepository,
-  ILimitOrderQuery,
-  IStock,
-  ILimit,
-  IUser,
-  IOrder,
-  ITransaction,
-  ISession,
-  IAdminService,
-} from "../interfaces/Interfaces";
-
+  IuserRepsitory,
+} from "../interfaces/repositoryInterface";
 dotenv.config();
 
 const tokenBlacklist = new Set<string>();

@@ -1,10 +1,7 @@
 import mongoose, { Schema } from "mongoose";
 import bcrypt from "bcryptjs";
+import { IUser, IPromotion } from "../interfaces/modelInterface";
 
-import { IUser, IPromotion } from "../interfaces/Interfaces";
-// Define an interface for the User document
-
-// Define the schema
 const userSchema = new Schema<IUser>({
   name: {
     type: String,

@@ -1,14 +1,18 @@
 import { Request, Response } from "express";
-import { IAdminService } from "../interfaces/Interfaces";
+import { IAdminService } from "../interfaces/serviceInterface";
 import Order from "../models/orderModel";
 import transactionModel from "../models/transactionModel";
 import { ILimitOrderQuery } from "../interfaces/Interfaces";
 import mongoose from "mongoose";
-import { ResponseModel } from "../interfaces/Interfaces";
 import { HttpStatusCode } from "../interfaces/Interfaces";
-import { IAdminController } from "../interfaces/Interfaces";
+import { IAdminController } from "../interfaces/controllerInterfaces";
 import sendResponse from "../helper/helper";
-import { send } from "process";
+import { MESSAGES } from "../helper/Message";
+
+export const ERROR_MESSAGES = {
+  BAD_REQUEST: "Bad Request",
+};
+
 export class AdminController implements IAdminController {
   private adminService: IAdminService;
 
@@ -21,13 +25,9 @@ export class AdminController implements IAdminController {
     try {
       const { email, password } = req.body;
       const { token } = await this.adminService.loginAdmin(email, password);
-      sendResponse(
-        res,
-        HttpStatusCode.OK,
-        true,
-        "User logged in successfully",
-        { token }
-      );
+      sendResponse(res, HttpStatusCode.OK, true, MESSAGES.LOGIN_SUCCESS, {
+        token,
+      });
     } catch (error: any) {
       sendResponse(
         res,
@@ -48,18 +48,12 @@ export class AdminController implements IAdminController {
       const limit = parseInt(req.query.limit as string, 10) || 10;
       const skip = (page - 1) * limit;
       const totalUsers = await this.adminService.countUsers();
-      sendResponse(
-        res,
-        HttpStatusCode.OK,
-        true,
-        "Users retrieved successfully",
-        {
-          usersData,
-          totalUsers,
-          currentPage: page,
-          totalPages: Math.ceil(totalUsers / limit),
-        }
-      );
+      sendResponse(res, HttpStatusCode.OK, true, MESSAGES.USERS_RETRIEVED, {
+        usersData,
+        totalUsers,
+        currentPage: page,
+        totalPages: Math.ceil(totalUsers / limit),
+      });
     } catch (error: any) {
       sendResponse(
         res,
@@ -85,7 +79,7 @@ export class AdminController implements IAdminController {
         res,
         HttpStatusCode.OK,
         true,
-        "User disabled successfully",
+        MESSAGES.USER_DISABLED,
         result
       );
     } catch (error: any) {
@@ -105,7 +99,7 @@ export class AdminController implements IAdminController {
     try {
       const stocks = await this.adminService.getAllStocks();
 
-      sendResponse(res, HttpStatusCode.OK, true, "stock list", stocks);
+      sendResponse(res, HttpStatusCode.OK, true, MESSAGES.STOCK_LIST, stocks);
     } catch (error: any) {
       sendResponse(
         res,
@@ -122,12 +116,8 @@ export class AdminController implements IAdminController {
   public getAllOrders = async (req: Request, res: Response): Promise<void> => {
     try {
       const orders = await this.adminService.getAllOrders();
-      const response: ResponseModel = {
-        success: true,
-        message: "All Orders",
-        data: orders,
-      };
-      sendResponse(res, HttpStatusCode.OK, true, "All Orders", orders);
+
+      sendResponse(res, HttpStatusCode.OK, true, MESSAGES.ALL_ORDERS, orders);
     } catch (error: any) {
       sendResponse(
         res,
@@ -170,7 +160,7 @@ export class AdminController implements IAdminController {
 
       const orders = await this.adminService.getLimitOrders(query);
 
-      sendResponse(res, HttpStatusCode.OK, true, "Limit Orders", orders);
+      sendResponse(res, HttpStatusCode.OK, true, MESSAGES.LIMIT_ORDERS, orders);
     } catch (error: any) {
       sendResponse(
         res,
@@ -214,7 +204,13 @@ export class AdminController implements IAdminController {
 
       const orders = await this.adminService.getMarketOrders(query);
 
-      sendResponse(res, HttpStatusCode.OK, true, "Market Orders", orders);
+      sendResponse(
+        res,
+        HttpStatusCode.OK,
+        true,
+        MESSAGES.MARKET_ORDERS,
+        orders
+      );
     } catch (error: any) {
       sendResponse(
         res,
@@ -238,7 +234,13 @@ export class AdminController implements IAdminController {
         .populate("stock", "symbol")
         .exec();
 
-      sendResponse(res, HttpStatusCode.OK, true, "Matched Orders", orders);
+      sendResponse(
+        res,
+        HttpStatusCode.OK,
+        true,
+        MESSAGES.MATCHED_ORDERS,
+        orders
+      );
     } catch (error: any) {
       sendResponse(
         res,
@@ -273,7 +275,7 @@ export class AdminController implements IAdminController {
           .status(HttpStatusCode.NOT_FOUND)
           .json({ message: "Order not found" });
       } else {
-        sendResponse(res, HttpStatusCode.OK, true, "Order Details", {
+        sendResponse(res, HttpStatusCode.OK, true, MESSAGES.ORDER_DETAILS, {
           order,
           transactions,
         });
@@ -300,7 +302,7 @@ export class AdminController implements IAdminController {
         res,
         HttpStatusCode.OK,
         true,
-        "All transactions",
+        MESSAGES.TRANSACTIONS_RETRIEVED,
         transactions
       );
     } catch (error: any) {
@@ -331,7 +333,7 @@ export class AdminController implements IAdminController {
         res,
         HttpStatusCode.OK,
         true,
-        "User portfolio details",
+        MESSAGES.USER_PORTFOLIO,
         portfolio
       );
     } catch (error: any) {
@@ -352,7 +354,13 @@ export class AdminController implements IAdminController {
     try {
       const fees = await this.adminService.getTotalFeesCollected();
 
-      sendResponse(res, HttpStatusCode.OK, true, "Total fees collected", fees);
+      sendResponse(
+        res,
+        HttpStatusCode.OK,
+        true,
+        MESSAGES.TOTAL_FEES_COLLECTED,
+        fees
+      );
     } catch (error: any) {
       sendResponse(
         res,
@@ -374,7 +382,7 @@ export class AdminController implements IAdminController {
         res,
         HttpStatusCode.OK,
         true,
-        "Order status updated to FAILED sucessfully",
+        MESSAGES.ORDER_DETAILS,
         updatedOrder
       );
     } catch (error: any) {
@@ -394,7 +402,13 @@ export class AdminController implements IAdminController {
 
       const updatedLimit = await this.adminService.updateLimit(limitData);
 
-      sendResponse(res, HttpStatusCode.OK, true, "Updated limit", updatedLimit);
+      sendResponse(
+        res,
+        HttpStatusCode.OK,
+        true,
+        MESSAGES.UPDATE_LIMIT,
+        updatedLimit
+      );
     } catch (error: any) {
       sendResponse(
         res,
@@ -410,7 +424,13 @@ export class AdminController implements IAdminController {
     try {
       const limits = await this.adminService.getLimits();
 
-      sendResponse(res, HttpStatusCode.OK, true, "Current limits", limits);
+      sendResponse(
+        res,
+        HttpStatusCode.OK,
+        true,
+        MESSAGES.CURRENT_LIMIT,
+        limits
+      );
     } catch (error: any) {
       sendResponse(
         res,
@@ -433,7 +453,7 @@ export class AdminController implements IAdminController {
         res,
         HttpStatusCode.OK,
         true,
-        "Promotion created successfully",
+        MESSAGES.PROMOTION_CREATED,
         promotions
       );
     } catch (error: any) {
@@ -455,7 +475,7 @@ export class AdminController implements IAdminController {
         res,
         HttpStatusCode.OK,
         true,
-        "Session created successfully",
+        MESSAGES.SESSION_CREATED,
         session
       );
     } catch (error: any) {
@@ -480,7 +500,7 @@ export class AdminController implements IAdminController {
         res,
         HttpStatusCode.OK,
         true,
-        "Session got successfully",
+        MESSAGES.SESSION_RETRIEVED,
         sessions
       );
     } catch (error: any) {
@@ -506,7 +526,7 @@ export class AdminController implements IAdminController {
         res,
         HttpStatusCode.OK,
         true,
-        "session got succesfully",
+        MESSAGES.SESSION_RETRIEVED,
         session
       );
     } catch (error: any) {
@@ -535,7 +555,7 @@ export class AdminController implements IAdminController {
         res,
         HttpStatusCode.OK,
         true,
-        "session updated succesfully",
+        MESSAGES.SESSION_CREATED,
         updatedSession
       );
     } catch (error: any) {
@@ -563,7 +583,7 @@ export class AdminController implements IAdminController {
         res,
         HttpStatusCode.OK,
         true,
-        "session cancelled succesfully",
+        MESSAGES.SESSION_CANCELLED,
         updatedSession
       );
     } catch (error: any) {

@@ -1,17 +1,13 @@
 import { Request, Response } from "express";
-import { IUserService } from "../interfaces/Interfaces";
+import { IUserService } from "../interfaces/serviceInterface";
 import mongoose from "mongoose";
 import Stock from "../models/stockModel";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { ResponseModel } from "../interfaces/Interfaces";
 import { HttpStatusCode } from "../interfaces/Interfaces";
-import { IUserController } from "../interfaces/Interfaces";
-import { S3Service } from "../s3.service";
+import { IUserController } from "../interfaces/controllerInterfaces";
 import multer from "multer";
 import AWS from "aws-sdk";
-import { S3Client, GetObjectCommand } from "@aws-sdk/client-s3";
-import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
-import { v4 as uuidv4 } from "uuid";
 import sendResponse from "../helper/helper";
 import User from "../models/userModel";
 import dotenv from "dotenv";
@@ -24,78 +20,14 @@ export class UserController implements IUserController {
   constructor(userService: IUserService) {
     this.userService = userService;
   }
-  s3Service = new S3Service();
+
   s3 = new AWS.S3({
     accessKeyId: process.env.AWS_ACCESS_KEY_ID,
     secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
     region: process.env.AWS_REGION,
   });
   upload = multer({ storage: multer.memoryStorage() });
-  public getSignedUrl = async (req: Request, res: Response): Promise<any> => {
-    const { fileName, fileType } = req.query;
-    console.log("AWS Region:", process.env.AWS_REGION);
-    console.log("AWS Bucket Name:", process.env.S3_BUCKET_NAME);
 
-    if (!fileName || !fileType) {
-      return res.status(400).json({ error: "Missing fileName or fileType" });
-    }
-    const encodedFileName = encodeURIComponent(fileName as string);
-
-    const params = {
-      Bucket: process.env.S3_BUCKET_NAME as string,
-      Key: `profiles/${encodedFileName}`,
-      Expires: 60,
-      ContentType: fileType,
-    };
-
-    try {
-      const signedUrl = await this.s3.getSignedUrlPromise("putObject", params);
-      res.json({
-        signedUrl,
-        fileUrl: `https://${process.env.S3_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/profiles/${encodedFileName}`,
-      });
-    } catch (err) {
-      console.error("Error generating signed URL:", err);
-      res.status(500).json({
-        error: "Error generating signed URL",
-        details: (err as any).message,
-      });
-    }
-  };
-
-  public saveProfile = async (req: Request, res: Response): Promise<void> => {
-    const { email, profileImageUrl } = req.body;
-
-    try {
-      const user = await User.findOneAndUpdate(
-        { email },
-        { profileImageUrl },
-        { new: true, upsert: true }
-      );
-
-      res.json({ message: "Profile updated successfully", user });
-    } catch (err) {
-      res.status(500).json({ error: "Error updating profile", details: err });
-    }
-  };
-  public getProfileById = async (
-    req: Request,
-    res: Response
-  ): Promise<void> => {
-    const { email } = req.query;
-
-    try {
-      const user = await User.findOne({ email });
-
-      if (!user) {
-        res.status(404).json({ error: "User not found" });
-      }
-
-      res.json({ user });
-    } catch (err) {
-      res.status(500).json({ error: "Error fetching profile", details: err });
-    }
-  };
   //signup
   public signup = async (req: Request, res: Response): Promise<void> => {
     const { name, email, password, role } = req.body;
@@ -663,16 +595,55 @@ export class UserController implements IUserController {
     };
     res.status(HttpStatusCode.OK).json(response);
   };
+  public getSignedUrl = async (req: Request, res: Response): Promise<any> => {
+    const { fileName, fileType } = req.query;
+    console.log(fileName, fileType);
+    console.log("AWS Region:", process.env.AWS_REGION);
+    console.log("AWS Bucket Name:", process.env.S3_BUCKET_NAME);
 
-  public getUploadURL = async (req: Request, res: Response): Promise<void> => {
+    if (!fileName || !fileType) {
+      return res.status(400).json({ error: "Missing fileName or fileType" });
+    }
+
+    const params = {
+      Bucket: process.env.S3_BUCKET_NAME as string,
+      Key: `profiles/${fileName}`,
+      Expires: 3600,
+      ContentType: fileType,
+    };
     try {
-      const { userId } = req.body;
-      const { url, Key } = await this.s3Service.generateUploadURL(userId);
-      console.log("Generated Upload URL:", url);
-      console.log("Generated S3 Key:", Key);
-      res.status(200).json({ url, Key });
-    } catch (error) {
-      res.status(500).json({ error: "Error generating upload URL" });
+      const signedUrl = await this.s3.getSignedUrlPromise("putObject", params);
+      console.log(signedUrl);
+      res.json({
+        signedUrl,
+        fileUrl: `https://${process.env.S3_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/profiles/${fileName}`,
+      });
+    } catch (err) {
+      console.error("Error generating signed URL:", err);
+      res.status(500).json({
+        error: "Error generating signed URL",
+        details: (err as any).message,
+      });
+    }
+  };
+
+  public saveProfile = async (req: Request, res: Response): Promise<void> => {
+    const userId = req.userId;
+    const user = await User.findById(userId);
+    const email = user?.email;
+    console.log(email);
+    const { profileImageUrl } = req.body;
+    console.log(profileImageUrl);
+    try {
+      const user = await User.findOneAndUpdate(
+        { email },
+        { profilePhoto: profileImageUrl },
+        { new: true, upsert: true }
+      );
+
+      res.json({ message: "Profile updated successfully", user });
+    } catch (err) {
+      res.status(500).json({ error: "Error updating profile", details: err });
     }
   };
 }

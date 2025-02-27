@@ -2,7 +2,7 @@ import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
 import { Request, Response, NextFunction } from "express";
 import User from "../models/userModel";
-import { IUser } from "../interfaces/Interfaces";
+import { IUser } from "../interfaces/modelInterface";
 
 dotenv.config();
 

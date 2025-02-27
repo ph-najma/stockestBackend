@@ -10,14 +10,11 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.PaymentService = void 0;
-const paymentRepository_1 = require("../repositories/paymentRepository");
-const userRepository_1 = require("../repositories/userRepository");
-const sessionRepository_1 = require("../repositories/sessionRepository");
 class PaymentService {
-    constructor() {
-        this.paymentRepository = new paymentRepository_1.PaymentRepository();
-        this.userRepository = new userRepository_1.UserRepository();
-        this.sessionRepository = new sessionRepository_1.sessionRepository();
+    constructor(paymentRepository, userRepository, sessionRepository) {
+        this.paymentRepository = paymentRepository;
+        this.userRepository = userRepository;
+        this.sessionRepository = sessionRepository;
     }
     createOrder(userId, amount) {
         return __awaiter(this, void 0, void 0, function* () {

@@ -2,11 +2,11 @@ import {
   IOrder,
   IUser,
   ISession,
-  ISignupBonus,
   ILimit,
   IStock,
   IWatchlist,
   ITransaction,
+  IPromotion,
 } from "./modelInterface";
 import { ILimitOrderQuery } from "./Interfaces";
 import mongoose from "mongoose";
@@ -42,7 +42,12 @@ export interface IUserService {
     stopPrice: number,
     IsIntraday: Boolean | undefined
   ): Promise<IOrder | null>;
-  getTransactions(userId: string | undefined): Promise<ITransaction[]>;
+  getTransactions(
+    userId: string | undefined,
+    skip: number,
+    limit: number
+  ): Promise<ITransaction[]>;
+  getUpdatedPortfolio(user: IUser): Promise<any>;
   updatePortfolioAfterSell(
     userId: string,
     stockId: string,
@@ -61,7 +66,9 @@ export interface IUserService {
     skip: number,
     limit: number
   ): Promise<IOrder[] | null>;
-  getUserProfileWithRewards(userId: string | undefined): Promise<IUser | null>;
+  getUserProfileWithRewards(
+    userId: string | undefined
+  ): Promise<IPromotion | null>;
   getTradeDiary(userId: string | undefined): Promise<any>;
   getActiveSessions(): Promise<ISession[] | null>;
   getAssignedSession(
@@ -114,4 +121,21 @@ export interface IAdminService {
     newStatus: "SCHEDULED" | "COMPLETED" | "CANCELED"
   ): Promise<ISession | null>;
   countUsers(): Promise<number>;
+}
+
+export interface IPaymentService {
+  createOrder(
+    userId: string | undefined,
+    amount: number
+  ): Promise<Razorpay.Order>;
+  verifyPayment(
+    userId: string | undefined,
+    orderId: string,
+    paymentId: string,
+    signature: string
+  ): Promise<boolean>;
+  updateSession(
+    sessionId: string,
+    userId: string | undefined
+  ): Promise<ISession | null>;
 }

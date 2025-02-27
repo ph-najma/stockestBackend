@@ -5,23 +5,26 @@ import crypto from "crypto";
 import dotenv from "dotenv";
 import { sendEmail } from "../utils/sendEmail";
 import { generateOTP } from "../utils/otpGenerator";
+import { OtpStoreEntry } from "../interfaces/Interfaces";
 import {
-  IOrderRepository,
+  IWatchlistRepository,
+  IuserRepsitory,
   ITransactionRepository,
+  IStockRepository,
   ISessionRepository,
   IpromotionRepsoitory,
-  IWatchlistRepository,
-  IStockRepository,
-  IuserRepsitory,
-  IUserService,
-  OtpStoreEntry,
-  IStock,
-  IUser,
-  IOrder,
-  ITransaction,
-  ISession,
+  IOrderRepository,
+} from "../interfaces/repositoryInterface";
+import {
   IWatchlist,
-} from "../interfaces/Interfaces";
+  IUser,
+  ITransaction,
+  IStock,
+  ISession,
+  IPromotion,
+  IOrder,
+} from "../interfaces/modelInterface";
+import { IUserService } from "../interfaces/serviceInterface";
 
 type ObjectId = mongoose.Types.ObjectId;
 
@@ -404,7 +407,7 @@ export class UserService implements IUserService {
   }
   async getUserProfileWithRewards(
     userId: string | undefined
-  ): Promise<IUser | null> {
+  ): Promise<IPromotion | null> {
     try {
       const promo = await this.promotionRepository.findPromotion();
 

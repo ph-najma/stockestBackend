@@ -1,8 +1,9 @@
-import Order from "../models/orderModel";
-import { IOrder, IOrderRepository } from "../interfaces/Interfaces";
-import { ILimitOrderQuery } from "../interfaces/Interfaces";
+import { ILimitOrderQuery, OrderStatus } from "../interfaces/Interfaces";
 import { BaseRepository } from "./BaseRepository";
 import { Model } from "mongoose";
+import { IOrder } from "../interfaces/modelInterface";
+import { IOrderRepository } from "../interfaces/repositoryInterface";
+
 export class OrderRepository
   extends BaseRepository<IOrder>
   implements IOrderRepository
@@ -33,13 +34,12 @@ export class OrderRepository
 
   async findCompletedOrders(): Promise<IOrder[]> {
     return this.model
-      .find({ status: "COMPLETED" })
+      .find({ status: OrderStatus.COMPLETED })
       .sort({ createdAt: -1 })
       .populate("user")
       .populate("stock")
       .exec();
   }
- 
 
   async findOrdersByType(query: ILimitOrderQuery): Promise<IOrder[]> {
     return this.model
@@ -62,7 +62,7 @@ export class OrderRepository
   }
   async cancelOrder(orderId: string): Promise<IOrder | null> {
     const updatedOrder = await this.model
-      .findByIdAndUpdate(orderId, { status: "FAILED" }, { new: true })
+      .findByIdAndUpdate(orderId, { status: OrderStatus.FAILED }, { new: true })
       .exec();
 
     return updatedOrder;

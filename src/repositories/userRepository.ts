@@ -1,15 +1,14 @@
 import User from "../models/userModel";
-import { IUser } from "../interfaces/Interfaces";
-import { Model } from "mongoose";
+import { IUser } from "../interfaces/modelInterface";
+import { IuserRepsitory } from "../interfaces/repositoryInterface";
 import mongoose from "mongoose";
-import { IuserRepsitory } from "../interfaces/Interfaces";
 import { BaseRepository } from "./BaseRepository";
 export class UserRepository
   extends BaseRepository<IUser>
   implements IuserRepsitory
 {
   constructor() {
-    super(User); // Pass the User model to the base repository
+    super(User);// Pass the User model to the base repository
   }
   // Find user by email
   async findByEmail(email: string): Promise<IUser | null> {

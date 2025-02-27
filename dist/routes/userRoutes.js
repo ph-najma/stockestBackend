@@ -13,7 +13,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
-const passport_1 = __importDefault(require("passport"));
 const google_auth_library_1 = require("google-auth-library");
 const auth_1 = require("../middleware/auth");
 const dotenv_1 = __importDefault(require("dotenv"));
@@ -30,15 +29,18 @@ const promotionRepository_1 = require("../repositories/promotionRepository");
 const watchlistRepsoitory_1 = require("../repositories/watchlistRepsoitory");
 const paymentController_1 = require("../controllers/paymentController");
 const sessionRepository_1 = require("../repositories/sessionRepository");
+const paymentServices_1 = require("../services/paymentServices");
+const paymentRepository_1 = require("../repositories/paymentRepository");
 const orderModel_1 = __importDefault(require("../models/orderModel"));
 const userRepository = new userRepository_1.UserRepository();
+const payemntRepository = new paymentRepository_1.PaymentRepository();
 const stockRepository = new stockRepository_1.StockRepository();
 const TransactionRepository = new transactionRepository_1.transactionRepository();
 const orderRepository = new orderRepository_1.OrderRepository(orderModel_1.default);
 const promotionRepository = new promotionRepository_1.PromotionRepository();
 const watchlistRepository = new watchlistRepsoitory_1.watchlistRepostory();
-const paymentController = new paymentController_1.PaymentController();
 const sessionRepsoitory = new sessionRepository_1.sessionRepository();
+const paymentController = new paymentController_1.PaymentController(new paymentServices_1.PaymentService(payemntRepository, userRepository, sessionRepsoitory));
 const userController = new userController_1.UserController(new userService_1.UserService(stockRepository, userRepository, TransactionRepository, orderRepository, promotionRepository, watchlistRepository, sessionRepsoitory));
 dotenv_1.default.config();
 const router = express_1.default.Router();
@@ -77,18 +79,23 @@ router.get("/getAssigned", (0, auth_1.verifyTokenWithRole)("user"), userControll
 router.get("/refresh", userController.refreshToken);
 router.get("/search", (0, auth_1.verifyTokenWithRole)("user"), userController.getBySearch);
 router.get("/activeSessions", (0, auth_1.verifyTokenWithRole)("user"), userController.getActiveSessions);
-router.post("/get-upload-url", userController.getUploadURL);
 router.get("/get-signed-url", (0, auth_1.verifyTokenWithRole)("user"), userController.getSignedUrl);
 router.post("/update-profile", (0, auth_1.verifyTokenWithRole)("user"), userController.saveProfile);
-router.get("/get-profile", (0, auth_1.verifyTokenWithRole)("user"), userController.getProfileById);
 router.post("/generate", userController.generate);
 // Google OAuth routes
-router.get("/auth/google", passport_1.default.authenticate("google", {
-    scope: ["profile", "email"], // Request access to the user's profile and email
-}));
-router.get("/auth/google/callback", passport_1.default.authenticate("google", { failureRedirect: "/" }), (req, res) => {
-    res.redirect("/home"); // Redirect on successful authentication
-});
+// router.get(
+//   "/auth/google",
+//   passport.authenticate("google", {
+//     scope: ["profile", "email"], // Request access to the user's profile and email
+//   })
+// );
+// router.get(
+//   "/auth/google/callback",
+//   passport.authenticate("google", { failureRedirect: "/" }),
+//   (req: Request, res: Response) => {
+//     res.redirect("/home"); // Redirect on successful authentication
+//   }
+// );
 router.get("/logout", (req, res) => {
     req.logout((err) => {
         if (err) {

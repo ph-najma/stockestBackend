@@ -127,7 +127,6 @@ class sessionRepository {
                 const sessionData = yield sessionModel_1.default.find({
                     instructor_email: Instructoremail,
                 });
-                console.log(sessionData);
                 return sessionData;
             }
             catch (error) {

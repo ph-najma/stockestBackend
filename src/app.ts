@@ -3,11 +3,12 @@ import cors from "cors";
 import connectDB from "./config/db";
 import userRoute from "./routes/userRoutes";
 import adminRoute from "./routes/adminRoutes";
+import passportRoute from "./auth/authRoutes";
 import { connectRedis } from "./config/redis";
 import session from "express-session";
 import passport from "passport";
 import cron from "node-cron";
-import { autoSquareOff } from "./services/squareOffService";
+import { SquareOffService } from "./services/squareOffService";
 import { newOrderRepository } from "./repositories/newOrder";
 import { fetchStockRepository } from "./repositories/fetchStock";
 import morgan from "morgan";
@@ -16,24 +17,23 @@ import path from "path";
 import fs from "fs";
 import dotenv from "dotenv";
 import { io } from "./server";
-import http from "http";
 
 dotenv.config();
 
-// Create the express app
 const app: Application = express();
 
 connectDB();
 connectRedis();
 const newOrderRepostory = new newOrderRepository();
 const fetchStocks = new fetchStockRepository();
-
+const squareOffService = new SquareOffService();
 // Log directory setup
 if (process.env.NODE_ENV === "development") {
   app.use(morgan("dev"));
 } else {
   const logDirectory = path.join(__dirname, "logs");
   console.log(logDirectory);
+
   if (!fs.existsSync(logDirectory)) {
     fs.mkdirSync(logDirectory);
   }
@@ -72,6 +72,7 @@ app.use(express.json());
 // Routes
 app.use(userRoute);
 app.use(adminRoute);
+app.use(passportRoute);
 
 app.use((req, res, next) => {
   if (req.path.startsWith("/socket.io")) return next();
@@ -99,7 +100,7 @@ cron.schedule("* * * * *", async () => {
 });
 cron.schedule("15 15 * * *", async () => {
   console.log("Executing auto square off...");
-  await autoSquareOff();
+  await squareOffService.autoSquareOff();
 });
 
 // Test route

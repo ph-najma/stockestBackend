@@ -60,7 +60,7 @@ class newOrderRepository {
                             continue;
                         }
                     }
-                    if (bestOrder) {
+                    if (bestOrder && order.user.toString() !== bestOrder.user.toString()) {
                         const matchPrice = bestOrder.price;
                         const matchedQuantity = Math.min(quantity, bestOrder.quantity);
                         // Update orders

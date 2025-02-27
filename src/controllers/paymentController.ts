@@ -1,10 +1,12 @@
 import { Request, Response } from "express";
-import { PaymentService } from "../services/paymentServices";
-export class PaymentController {
-  private paymentService: PaymentService;
 
-  constructor() {
-    this.paymentService = new PaymentService();
+import { IpaymentController } from "../interfaces/controllerInterfaces";
+import { IPaymentService } from "../interfaces/serviceInterface";
+export class PaymentController implements IpaymentController {
+  private paymentService: IPaymentService;
+
+  constructor(paymentService: IPaymentService) {
+    this.paymentService = paymentService;
   }
 
   async createOrder(req: Request, res: Response): Promise<void> {

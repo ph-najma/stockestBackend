@@ -6,7 +6,7 @@ import {
   VerifyCallback,
 } from "passport-google-oauth20";
 import User from "../models/userModel";
-import { IUser } from "../interfaces/Interfaces";
+import { IUser } from "../interfaces/modelInterface";
 import dotenv from "dotenv";
 import { Profile, GoogleCallbackParameters } from "passport-google-oauth20";
 
@@ -16,7 +16,7 @@ dotenv.config();
 const googleStrategyOptions: StrategyOptions = {
   clientID: process.env.GOOGLE_CLIENT_ID as string,
   clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
-  callbackURL: "http://localhost:5000/auth/google/callback",
+  callbackURL: process.env.CALL_BACK_URL,
 };
 
 passport.use(

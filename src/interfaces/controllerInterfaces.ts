@@ -50,6 +50,11 @@ export interface IUserController {
   getBySearch(req: Request, res: Response): Promise<void>;
   generate(req: Request, res: Response): Promise<void>;
   refreshToken(req: Request, res: Response): Promise<void>;
+  saveProfile(req: Request, res: Response): Promise<void>;
+  getSignedUrl(req: Request, res: Response): Promise<void>;
+}
 
-  getUploadURL(req: Request, res: Response): Promise<void>;
+export interface IpaymentController {
+  createOrder(req: Request, res: Response): Promise<void>;
+  verifyPayment(req: Request, res: Response): Promise<void>;
 }

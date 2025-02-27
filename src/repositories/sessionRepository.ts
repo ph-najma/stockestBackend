@@ -1,6 +1,6 @@
 import session from "../models/sessionModel";
-import { ISession } from "../interfaces/Interfaces";
-import { ISessionRepository } from "../interfaces/Interfaces";
+import { ISession } from "../interfaces/modelInterface";
+import { ISessionRepository } from "../interfaces/repositoryInterface";
 
 export class sessionRepository implements ISessionRepository {
   public async createSession(sessionData: ISession): Promise<ISession> {
@@ -114,7 +114,7 @@ export class sessionRepository implements ISessionRepository {
       const sessionData = await session.find({
         instructor_email: Instructoremail,
       });
-      console.log(sessionData);
+
       return sessionData;
     } catch (error: any) {
       throw new Error("Error finding sessions " + error.message);

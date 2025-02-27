@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.HttpStatusCode = void 0;
+exports.OrderStatus = exports.HttpStatusCode = void 0;
 var HttpStatusCode;
 (function (HttpStatusCode) {
     HttpStatusCode[HttpStatusCode["OK"] = 200] = "OK";
@@ -11,3 +11,9 @@ var HttpStatusCode;
     HttpStatusCode[HttpStatusCode["NOT_FOUND"] = 404] = "NOT_FOUND";
     HttpStatusCode[HttpStatusCode["INTERNAL_SERVER_ERROR"] = 500] = "INTERNAL_SERVER_ERROR";
 })(HttpStatusCode || (exports.HttpStatusCode = HttpStatusCode = {}));
+var OrderStatus;
+(function (OrderStatus) {
+    OrderStatus["PENDING"] = "PENDING";
+    OrderStatus["COMPLETED"] = "COMPLETED";
+    OrderStatus["FAILED"] = "FAILED";
+})(OrderStatus || (exports.OrderStatus = OrderStatus = {}));

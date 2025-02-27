@@ -17,6 +17,7 @@ const cors_1 = __importDefault(require("cors"));
 const db_1 = __importDefault(require("./config/db"));
 const userRoutes_1 = __importDefault(require("./routes/userRoutes"));
 const adminRoutes_1 = __importDefault(require("./routes/adminRoutes"));
+const authRoutes_1 = __importDefault(require("./auth/authRoutes"));
 const redis_1 = require("./config/redis");
 const express_session_1 = __importDefault(require("express-session"));
 const passport_1 = __importDefault(require("passport"));
@@ -31,12 +32,12 @@ const fs_1 = __importDefault(require("fs"));
 const dotenv_1 = __importDefault(require("dotenv"));
 const server_1 = require("./server");
 dotenv_1.default.config();
-// Create the express app
 const app = (0, express_1.default)();
 (0, db_1.default)();
 (0, redis_1.connectRedis)();
 const newOrderRepostory = new newOrder_1.newOrderRepository();
 const fetchStocks = new fetchStock_1.fetchStockRepository();
+const squareOffService = new squareOffService_1.SquareOffService();
 // Log directory setup
 if (process.env.NODE_ENV === "development") {
     app.use((0, morgan_1.default)("dev"));
@@ -44,6 +45,7 @@ if (process.env.NODE_ENV === "development") {
 else {
     const logDirectory = path_1.default.join(__dirname, "logs");
     console.log(logDirectory);
+    console.log("hlloo");
     if (!fs_1.default.existsSync(logDirectory)) {
         fs_1.default.mkdirSync(logDirectory);
     }
@@ -70,6 +72,7 @@ app.use(express_1.default.json());
 // Routes
 app.use(userRoutes_1.default);
 app.use(adminRoutes_1.default);
+app.use(authRoutes_1.default);
 app.use((req, res, next) => {
     if (req.path.startsWith("/socket.io"))
         return next();
@@ -98,7 +101,7 @@ node_cron_1.default.schedule("* * * * *", () => __awaiter(void 0, void 0, void 0
 }));
 node_cron_1.default.schedule("15 15 * * *", () => __awaiter(void 0, void 0, void 0, function* () {
     console.log("Executing auto square off...");
-    yield (0, squareOffService_1.autoSquareOff)();
+    yield squareOffService.autoSquareOff();
 }));
 // Test route
 app.get("/", (req, res) => {

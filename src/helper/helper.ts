@@ -13,4 +13,6 @@ const sendResponse = <T>(
   res.status(statusCode).json({ success, message, data, error });
 };
 
+
+
 export default sendResponse;

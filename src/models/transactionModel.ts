@@ -1,7 +1,6 @@
-// models/transactionModel.ts
 import mongoose, { Schema } from "mongoose";
 
-import { ITransaction, IUser } from "../interfaces/Interfaces";
+import { ITransaction } from "../interfaces/modelInterface";
 
 const transactionSchema = new Schema<ITransaction>({
   buyer: { type: Schema.Types.ObjectId, ref: "User", required: true },

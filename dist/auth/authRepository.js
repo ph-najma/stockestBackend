@@ -8,42 +8,28 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.BaseRepository = void 0;
-class BaseRepository {
-    constructor(model) {
-        this.model = model;
-    }
-    findById(id) {
+exports.AuthRepository = void 0;
+const userModel_1 = __importDefault(require("../models/userModel"));
+class AuthRepository {
+    findUserByGoogleId(googleId) {
         return __awaiter(this, void 0, void 0, function* () {
-            return this.model.findById(id).exec();
+            return (yield userModel_1.default.findOne({ googleId }));
         });
     }
-    findOne(filter) {
+    findUserById(userId) {
         return __awaiter(this, void 0, void 0, function* () {
-            return this.model.findOne(filter).exec();
+            return (yield userModel_1.default.findById(userId));
         });
     }
-    findAll() {
-        return __awaiter(this, arguments, void 0, function* (filter = {}) {
-            return this.model.find(filter).exec();
-        });
-    }
-    create(data) {
+    createUser(userData) {
         return __awaiter(this, void 0, void 0, function* () {
-            const document = new this.model(data);
-            return document.save();
-        });
-    }
-    updateById(id, updateData) {
-        return __awaiter(this, void 0, void 0, function* () {
-            return this.model.findByIdAndUpdate(id, updateData, { new: true }).exec();
-        });
-    }
-    deleteById(id) {
-        return __awaiter(this, void 0, void 0, function* () {
-            return this.model.findByIdAndDelete(id).exec();
+            const newUser = new userModel_1.default(userData);
+            return yield newUser.save();
         });
     }
 }
-exports.BaseRepository = BaseRepository;
+exports.AuthRepository = AuthRepository;

@@ -1,9 +1,9 @@
-import { time, timeStamp } from "console";
+
 import Stock from "../models/stockModel";
-import { IStock } from "../interfaces/Interfaces";
+import { IStock } from "../interfaces/modelInterface";
 import { Model } from "mongoose";
 import mongoose from "mongoose";
-import { IStockRepository } from "../interfaces/Interfaces";
+import { IStockRepository } from "../interfaces/repositoryInterface";
 export class StockRepository implements IStockRepository {
   private model: Model<IStock>;
   constructor() {

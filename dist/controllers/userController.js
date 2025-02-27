@@ -17,7 +17,6 @@ const mongoose_1 = __importDefault(require("mongoose"));
 const stockModel_1 = __importDefault(require("../models/stockModel"));
 const generative_ai_1 = require("@google/generative-ai");
 const Interfaces_1 = require("../interfaces/Interfaces");
-const s3_service_1 = require("../s3.service");
 const multer_1 = __importDefault(require("multer"));
 const aws_sdk_1 = __importDefault(require("aws-sdk"));
 const userModel_1 = __importDefault(require("../models/userModel"));
@@ -25,83 +24,12 @@ const dotenv_1 = __importDefault(require("dotenv"));
 dotenv_1.default.config();
 class UserController {
     constructor(userService) {
-        this.s3Service = new s3_service_1.S3Service();
         this.s3 = new aws_sdk_1.default.S3({
             accessKeyId: process.env.AWS_ACCESS_KEY_ID,
             secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
             region: process.env.AWS_REGION,
         });
         this.upload = (0, multer_1.default)({ storage: multer_1.default.memoryStorage() });
-        this.getSignedUrl = (req, res) => __awaiter(this, void 0, void 0, function* () {
-            const { fileName, fileType } = req.query;
-            console.log("AWS Region:", process.env.AWS_REGION);
-            console.log("AWS Bucket Name:", process.env.S3_BUCKET_NAME);
-            if (!fileName || !fileType) {
-                return res.status(400).json({ error: "Missing fileName or fileType" });
-            }
-            const params = {
-                Bucket: process.env.S3_BUCKET_NAME,
-                Key: `profiles/${fileName}`,
-                Expires: 60, // URL expiration time (seconds)
-                ContentType: fileType,
-            };
-            try {
-                const signedUrl = yield this.s3.getSignedUrlPromise("putObject", params);
-                res.json({
-                    signedUrl,
-                    fileUrl: `https://${process.env.S3_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/profiles/${fileName}`,
-                });
-            }
-            catch (err) {
-                console.error("Error generating signed URL:", err);
-                res.status(500).json({
-                    error: "Error generating signed URL",
-                    details: err.message,
-                });
-            }
-        });
-        this.getSignedViewUrl = (req, res) => __awaiter(this, void 0, void 0, function* () {
-            const { filePath } = req.query;
-            if (!filePath) {
-                res.status(400).json({ error: "Missing file path" });
-            }
-            const params = {
-                Bucket: process.env.S3_BUCKET_NAME,
-                Key: filePath,
-                Expires: 300, // 5 minutes expiration
-            };
-            try {
-                const signedUrl = yield this.s3.getSignedUrlPromise("getObject", params);
-                res.json({ signedUrl });
-            }
-            catch (err) {
-                console.error("Error generating signed URL:", err);
-                res.status(500).json({ error: "Error generating signed URL" });
-            }
-        });
-        this.saveProfile = (req, res) => __awaiter(this, void 0, void 0, function* () {
-            const { email, profileImageUrl } = req.body;
-            try {
-                const user = yield userModel_1.default.findOneAndUpdate({ email }, { profileImageUrl }, { new: true, upsert: true });
-                res.json({ message: "Profile updated successfully", user });
-            }
-            catch (err) {
-                res.status(500).json({ error: "Error updating profile", details: err });
-            }
-        });
-        this.getProfileById = (req, res) => __awaiter(this, void 0, void 0, function* () {
-            const { email } = req.query;
-            try {
-                const user = yield userModel_1.default.findOne({ email });
-                if (!user) {
-                    res.status(404).json({ error: "User not found" });
-                }
-                res.json({ user });
-            }
-            catch (err) {
-                res.status(500).json({ error: "Error fetching profile", details: err });
-            }
-        });
         //signup
         this.signup = (req, res) => __awaiter(this, void 0, void 0, function* () {
             const { name, email, password, role } = req.body;
@@ -624,16 +552,49 @@ class UserController {
             };
             res.status(Interfaces_1.HttpStatusCode.OK).json(response);
         });
-        this.getUploadURL = (req, res) => __awaiter(this, void 0, void 0, function* () {
-            try {
-                const { userId } = req.body;
-                const { url, Key } = yield this.s3Service.generateUploadURL(userId);
-                console.log("Generated Upload URL:", url);
-                console.log("Generated S3 Key:", Key);
-                res.status(200).json({ url, Key });
+        this.getSignedUrl = (req, res) => __awaiter(this, void 0, void 0, function* () {
+            const { fileName, fileType } = req.query;
+            console.log(fileName, fileType);
+            console.log("AWS Region:", process.env.AWS_REGION);
+            console.log("AWS Bucket Name:", process.env.S3_BUCKET_NAME);
+            if (!fileName || !fileType) {
+                return res.status(400).json({ error: "Missing fileName or fileType" });
             }
-            catch (error) {
-                res.status(500).json({ error: "Error generating upload URL" });
+            const params = {
+                Bucket: process.env.S3_BUCKET_NAME,
+                Key: `profiles/${fileName}`,
+                Expires: 3600,
+                ContentType: fileType,
+            };
+            try {
+                const signedUrl = yield this.s3.getSignedUrlPromise("putObject", params);
+                console.log(signedUrl);
+                res.json({
+                    signedUrl,
+                    fileUrl: `https://${process.env.S3_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/profiles/${fileName}`,
+                });
+            }
+            catch (err) {
+                console.error("Error generating signed URL:", err);
+                res.status(500).json({
+                    error: "Error generating signed URL",
+                    details: err.message,
+                });
+            }
+        });
+        this.saveProfile = (req, res) => __awaiter(this, void 0, void 0, function* () {
+            const userId = req.userId;
+            const user = yield userModel_1.default.findById(userId);
+            const email = user === null || user === void 0 ? void 0 : user.email;
+            console.log(email);
+            const { profileImageUrl } = req.body;
+            console.log(profileImageUrl);
+            try {
+                const user = yield userModel_1.default.findOneAndUpdate({ email }, { profilePhoto: profileImageUrl }, { new: true, upsert: true });
+                res.json({ message: "Profile updated successfully", user });
+            }
+            catch (err) {
+                res.status(500).json({ error: "Error updating profile", details: err });
             }
         });
         this.userService = userService;
