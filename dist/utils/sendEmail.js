@@ -15,7 +15,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.sendEmail = void 0;
 const nodemailer_1 = __importDefault(require("nodemailer"));
 //====SEND EMAIL=============//
-const sendEmail = (email, otp) => __awaiter(void 0, void 0, void 0, function* () {
+const sendEmail = (email, subject, message) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const transporter = nodemailer_1.default.createTransport({
             service: "gmail",
@@ -27,11 +27,17 @@ const sendEmail = (email, otp) => __awaiter(void 0, void 0, void 0, function* ()
                 rejectUnauthorized: true,
             },
         });
+        // const mailOptions = {
+        //   from: process.env.SMTP_MAIL!,
+        //   to: email,
+        //   subject: "Your OTP for user verification",
+        //   text: `Your OTP is ${otp}. Please enter this code to verify your account.`,
+        // };
         const mailOptions = {
             from: process.env.SMTP_MAIL,
             to: email,
-            subject: "Your OTP for user verification",
-            text: `Your OTP is ${otp}. Please enter this code to verify your account.`,
+            subject: subject,
+            text: message,
         };
         transporter.sendMail(mailOptions, (error, info) => {
             if (error) {

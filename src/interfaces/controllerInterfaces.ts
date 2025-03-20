@@ -40,7 +40,6 @@ export interface IUserController {
   ensureWatchlistAndAddStock(req: Request, res: Response): Promise<void>;
   getStockData(req: Request, res: Response): Promise<void>;
   getHistorical(req: Request, res: Response): Promise<void>;
-  getReferralCode(req: Request, res: Response): Promise<void>;
   getOrders(req: Request, res: Response): Promise<void>;
   getPromotions(req: Request, res: Response): Promise<void>;
   getTradeDiary(req: Request, res: Response): Promise<void>;
@@ -52,6 +51,7 @@ export interface IUserController {
   refreshToken(req: Request, res: Response): Promise<void>;
   saveProfile(req: Request, res: Response): Promise<void>;
   getSignedUrl(req: Request, res: Response): Promise<void>;
+  getNotifications(req: Request, res: Response): Promise<void>;
 }
 
 export interface IpaymentController {

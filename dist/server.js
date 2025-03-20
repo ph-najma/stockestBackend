@@ -24,6 +24,7 @@ const transactionRepository_1 = require("./repositories/transactionRepository");
 const orderRepository_1 = require("./repositories/orderRepository");
 const promotionRepository_1 = require("./repositories/promotionRepository");
 const watchlistRepsoitory_1 = require("./repositories/watchlistRepsoitory");
+const notificationRepository_1 = require("./repositories/notificationRepository");
 const userModel_1 = __importDefault(require("./models/userModel"));
 const sessionRepository_1 = require("./repositories/sessionRepository");
 const userService_1 = require("./services/userService");
@@ -35,6 +36,7 @@ const orderRepository = new orderRepository_1.OrderRepository(orderModel_1.defau
 const promotionRepository = new promotionRepository_1.PromotionRepository();
 const watchlistRepository = new watchlistRepsoitory_1.watchlistRepostory();
 const sessionRepsoitory = new sessionRepository_1.sessionRepository();
+const notificationRepository = new notificationRepository_1.NotificationRepository();
 const stockrepository = new stockRepository_1.StockRepository();
 const server = http_1.default.createServer(app_1.default);
 const io = new socket_io_1.Server(server, {
@@ -44,7 +46,7 @@ const io = new socket_io_1.Server(server, {
     },
 });
 exports.io = io;
-const userService = new userService_1.UserService(stockRepository, userRepository, TransactionRepository, orderRepository, promotionRepository, watchlistRepository, sessionRepsoitory);
+const userService = new userService_1.UserService(stockRepository, userRepository, TransactionRepository, orderRepository, promotionRepository, watchlistRepository, sessionRepsoitory, notificationRepository);
 // 🔹 Handle client connection for Socket.IO
 io.on("connection", (socket) => __awaiter(void 0, void 0, void 0, function* () {
     var _a, _b, _c;

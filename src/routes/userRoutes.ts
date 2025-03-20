@@ -18,6 +18,7 @@ import { PaymentController } from "../controllers/paymentController";
 import { sessionRepository } from "../repositories/sessionRepository";
 import { PaymentService } from "../services/paymentServices";
 import { PaymentRepository } from "../repositories/paymentRepository";
+import { NotificationRepository } from "../repositories/notificationRepository";
 import orderModel from "../models/orderModel";
 import { IOrder } from "../interfaces/modelInterface";
 import { Model } from "mongoose";
@@ -29,6 +30,7 @@ const orderRepository = new OrderRepository(orderModel as Model<IOrder>);
 const promotionRepository = new PromotionRepository();
 const watchlistRepository = new watchlistRepostory();
 const sessionRepsoitory = new sessionRepository();
+const notificationRepository = new NotificationRepository();
 const paymentController = new PaymentController(
   new PaymentService(payemntRepository, userRepository, sessionRepsoitory)
 );
@@ -41,7 +43,8 @@ const userController = new UserController(
     orderRepository,
     promotionRepository,
     watchlistRepository,
-    sessionRepsoitory
+    sessionRepsoitory,
+    notificationRepository
   )
 );
 
@@ -175,7 +178,11 @@ router.post("/generate", userController.generate);
 //     res.redirect("/home"); // Redirect on successful authentication
 //   }
 // );
-
+router.get(
+  "/notifications",
+  verifyTokenWithRole("user"),
+  userController.getNotifications
+);
 router.get("/logout", (req: Request, res: Response) => {
   req.logout((err: any) => {
     if (err) {

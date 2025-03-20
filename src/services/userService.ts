@@ -14,6 +14,7 @@ import {
   ISessionRepository,
   IpromotionRepsoitory,
   IOrderRepository,
+  INotificationRepository,
 } from "../interfaces/repositoryInterface";
 import {
   IWatchlist,
@@ -23,6 +24,7 @@ import {
   ISession,
   IPromotion,
   IOrder,
+  INotification,
 } from "../interfaces/modelInterface";
 import { IUserService } from "../interfaces/serviceInterface";
 
@@ -40,6 +42,7 @@ export class UserService implements IUserService {
   private promotionRepository: IpromotionRepsoitory;
   private watchlistRepository: IWatchlistRepository;
   private sessionRepository: ISessionRepository;
+  private notificationRepository: INotificationRepository;
 
   constructor(
     stockRepository: IStockRepository,
@@ -48,7 +51,8 @@ export class UserService implements IUserService {
     orderRepository: IOrderRepository,
     promotionRepository: IpromotionRepsoitory,
     watchlistRepsoitory: IWatchlistRepository,
-    sessionRepository: ISessionRepository
+    sessionRepository: ISessionRepository,
+    notificationRepository: INotificationRepository
   ) {
     this.userRepository = userRepository;
     this.orderRepository = orderRepository;
@@ -57,6 +61,7 @@ export class UserService implements IUserService {
     this.promotionRepository = promotionRepository;
     this.watchlistRepository = watchlistRepsoitory;
     this.sessionRepository = sessionRepository;
+    this.notificationRepository = notificationRepository;
   }
 
   // Sign up a new user
@@ -82,7 +87,11 @@ export class UserService implements IUserService {
       otp,
       refferedBy: referralCode,
     });
-    await sendEmail(email, otp);
+    await sendEmail(
+      email,
+      "Your OTP for user verification",
+      `Your OTP is ${otp}. Please enter this code to verify your account.`
+    );
   }
 
   // Verify OTP
@@ -112,6 +121,7 @@ export class UserService implements IUserService {
         referralCode: crypto.randomBytes(4).toString("hex"),
         referredBy,
       });
+
       otpStore.delete(otp);
       const promotion = await this.promotionRepository.findPromotion();
       if (promotion && promotion.signupBonus.enabled) {
@@ -163,7 +173,11 @@ export class UserService implements IUserService {
       }
     });
 
-    await sendEmail(email, newOtp);
+    await sendEmail(
+      email,
+      "Your OTP for user verification",
+      `Your OTP is ${newOtp}. Please enter this code to verify your account.`
+    );
 
     return "OTP resent to email";
   }
@@ -214,7 +228,11 @@ export class UserService implements IUserService {
     otpStore.set(email, { userId: user._id.toString(), otp, otpExpiration });
 
     console.log(otpStore);
-    await sendEmail(email, otp);
+    await sendEmail(
+      email,
+      "Your OTP for user verification",
+      `Your OTP is ${otp}. Please enter this code to verify your account.`
+    );
   }
 
   // Reset password
@@ -481,5 +499,10 @@ export class UserService implements IUserService {
     } catch (error) {
       return "Failed to verify refresh token.";
     }
+  }
+  async getNotifications(
+    userId: string | undefined
+  ): Promise<INotification[] | null> {
+    return this.notificationRepository.getNotifications(userId);
   }
 }

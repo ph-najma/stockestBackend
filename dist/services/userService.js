@@ -23,7 +23,7 @@ const otpGenerator_1 = require("../utils/otpGenerator");
 dotenv_1.default.config();
 const otpStore = new Map();
 class UserService {
-    constructor(stockRepository, userRepository, transactionRepository, orderRepository, promotionRepository, watchlistRepsoitory, sessionRepository) {
+    constructor(stockRepository, userRepository, transactionRepository, orderRepository, promotionRepository, watchlistRepsoitory, sessionRepository, notificationRepository) {
         this.userRepository = userRepository;
         this.orderRepository = orderRepository;
         this.transactionRepository = transactionRepository;
@@ -31,6 +31,7 @@ class UserService {
         this.promotionRepository = promotionRepository;
         this.watchlistRepository = watchlistRepsoitory;
         this.sessionRepository = sessionRepository;
+        this.notificationRepository = notificationRepository;
     }
     // Sign up a new user
     signup(name, email, password, role, referralCode) {
@@ -49,7 +50,7 @@ class UserService {
                 otp,
                 refferedBy: referralCode,
             });
-            yield (0, sendEmail_1.sendEmail)(email, otp);
+            yield (0, sendEmail_1.sendEmail)(email, "Your OTP for user verification", `Your OTP is ${otp}. Please enter this code to verify your account.`);
         });
     }
     // Verify OTP
@@ -119,7 +120,7 @@ class UserService {
                     otpStore.delete(key);
                 }
             });
-            yield (0, sendEmail_1.sendEmail)(email, newOtp);
+            yield (0, sendEmail_1.sendEmail)(email, "Your OTP for user verification", `Your OTP is ${newOtp}. Please enter this code to verify your account.`);
             return "OTP resent to email";
         });
     }
@@ -158,7 +159,7 @@ class UserService {
             const otpExpiration = Date.now() + 10 * 60 * 1000;
             otpStore.set(email, { userId: user._id.toString(), otp, otpExpiration });
             console.log(otpStore);
-            yield (0, sendEmail_1.sendEmail)(email, otp);
+            yield (0, sendEmail_1.sendEmail)(email, "Your OTP for user verification", `Your OTP is ${otp}. Please enter this code to verify your account.`);
         });
     }
     // Reset password
@@ -399,6 +400,11 @@ class UserService {
             catch (error) {
                 return "Failed to verify refresh token.";
             }
+        });
+    }
+    getNotifications(userId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return this.notificationRepository.getNotifications(userId);
         });
     }
 }

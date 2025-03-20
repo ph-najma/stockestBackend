@@ -1,6 +1,6 @@
 import nodemailer from "nodemailer";
 //====SEND EMAIL=============//
-export const sendEmail = async (email: string, otp: string) => {
+export const sendEmail = async (email: string, subject: string, message:string) => {
   try {
     const transporter = nodemailer.createTransport({
       service: "gmail",
@@ -13,11 +13,17 @@ export const sendEmail = async (email: string, otp: string) => {
       },
     });
 
+    // const mailOptions = {
+    //   from: process.env.SMTP_MAIL!,
+    //   to: email,
+    //   subject: "Your OTP for user verification",
+    //   text: `Your OTP is ${otp}. Please enter this code to verify your account.`,
+    // };
     const mailOptions = {
       from: process.env.SMTP_MAIL!,
       to: email,
-      subject: "Your OTP for user verification",
-      text: `Your OTP is ${otp}. Please enter this code to verify your account.`,
+      subject: subject,
+      text: message,
     };
 
     transporter.sendMail(mailOptions, (error, info) => {

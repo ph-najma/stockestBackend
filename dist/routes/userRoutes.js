@@ -31,6 +31,7 @@ const paymentController_1 = require("../controllers/paymentController");
 const sessionRepository_1 = require("../repositories/sessionRepository");
 const paymentServices_1 = require("../services/paymentServices");
 const paymentRepository_1 = require("../repositories/paymentRepository");
+const notificationRepository_1 = require("../repositories/notificationRepository");
 const orderModel_1 = __importDefault(require("../models/orderModel"));
 const userRepository = new userRepository_1.UserRepository();
 const payemntRepository = new paymentRepository_1.PaymentRepository();
@@ -40,8 +41,9 @@ const orderRepository = new orderRepository_1.OrderRepository(orderModel_1.defau
 const promotionRepository = new promotionRepository_1.PromotionRepository();
 const watchlistRepository = new watchlistRepsoitory_1.watchlistRepostory();
 const sessionRepsoitory = new sessionRepository_1.sessionRepository();
+const notificationRepository = new notificationRepository_1.NotificationRepository();
 const paymentController = new paymentController_1.PaymentController(new paymentServices_1.PaymentService(payemntRepository, userRepository, sessionRepsoitory));
-const userController = new userController_1.UserController(new userService_1.UserService(stockRepository, userRepository, TransactionRepository, orderRepository, promotionRepository, watchlistRepository, sessionRepsoitory));
+const userController = new userController_1.UserController(new userService_1.UserService(stockRepository, userRepository, TransactionRepository, orderRepository, promotionRepository, watchlistRepository, sessionRepsoitory, notificationRepository));
 dotenv_1.default.config();
 const router = express_1.default.Router();
 const client = new google_auth_library_1.OAuth2Client(process.env.GOOGLE_CLIENT_ID);
@@ -96,6 +98,7 @@ router.post("/generate", userController.generate);
 //     res.redirect("/home"); // Redirect on successful authentication
 //   }
 // );
+router.get("/notifications", (0, auth_1.verifyTokenWithRole)("user"), userController.getNotifications);
 router.get("/logout", (req, res) => {
     req.logout((err) => {
         if (err) {

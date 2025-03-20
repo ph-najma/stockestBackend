@@ -9,6 +9,7 @@ import { transactionRepository } from "./repositories/transactionRepository";
 import { OrderRepository } from "./repositories/orderRepository";
 import { PromotionRepository } from "./repositories/promotionRepository";
 import { watchlistRepostory } from "./repositories/watchlistRepsoitory";
+import { NotificationRepository } from "./repositories/notificationRepository";
 import User from "./models/userModel";
 import { sessionRepository } from "./repositories/sessionRepository";
 import { IUserService } from "./interfaces/serviceInterface";
@@ -22,6 +23,7 @@ const orderRepository = new OrderRepository(orderModel);
 const promotionRepository = new PromotionRepository();
 const watchlistRepository = new watchlistRepostory();
 const sessionRepsoitory = new sessionRepository();
+const notificationRepository = new NotificationRepository();
 
 const stockrepository = new StockRepository();
 const server = http.createServer(app);
@@ -40,7 +42,8 @@ const userService: IUserService = new UserService(
   orderRepository,
   promotionRepository,
   watchlistRepository,
-  sessionRepsoitory
+  sessionRepsoitory,
+  notificationRepository
 );
 
 // 🔹 Handle client connection for Socket.IO

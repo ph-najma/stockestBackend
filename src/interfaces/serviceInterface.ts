@@ -7,6 +7,7 @@ import {
   IWatchlist,
   ITransaction,
   IPromotion,
+  INotification,
 } from "./modelInterface";
 import { ILimitOrderQuery } from "./Interfaces";
 import mongoose from "mongoose";
@@ -79,6 +80,7 @@ export interface IUserService {
   getHistorical(symbol: string | undefined): Promise<any>;
   countOrders(userId: string | undefined): Promise<number>;
   refreshToken(refreshToken: string): Promise<string>;
+  getNotifications(userId: string | undefined): Promise<INotification[] | null>;
 }
 export interface IAdminService {
   loginAdmin(email: string, password: string): Promise<{ token: string }>;

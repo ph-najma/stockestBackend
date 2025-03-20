@@ -45,7 +45,6 @@ if (process.env.NODE_ENV === "development") {
 else {
     const logDirectory = path_1.default.join(__dirname, "logs");
     console.log(logDirectory);
-    console.log("hlloo");
     if (!fs_1.default.existsSync(logDirectory)) {
         fs_1.default.mkdirSync(logDirectory);
     }

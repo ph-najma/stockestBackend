@@ -4,7 +4,8 @@ import Stock from "../models/stockModel";
 import User from "../models/userModel";
 import { ITransaction, IStock, IUser } from "../interfaces/modelInterface";
 import { io } from "../server";
-
+import notificationModel from "../models/notificationModel";
+import { sendEmail } from "../utils/sendEmail";
 export class newOrderRepository {
   async matchOrders(): Promise<void> {
     try {
@@ -96,7 +97,38 @@ export class newOrderRepository {
             },
           ]);
           io.emit("transaction-update", transaction[0]);
+          // Send notifications to buyer and seller
+          io.to(transaction[0].buyer.toString()).emit("notification", {
+            message: `Your order to buy ${matchedQuantity} shares of ${stockDoc.symbol} at $${matchPrice} has been completed.`,
+            type: "TRADE_SUCCESS",
+            timestamp: new Date(),
+          });
 
+          io.to(transaction[0].seller.toString()).emit("notification", {
+            message: `You sold ${matchedQuantity} shares of ${
+              stockDoc.symbol
+            } at $${matchPrice}. Amount credited: $${
+              matchPrice * matchedQuantity - fees
+            }`,
+            type: "TRADE_SUCCESS",
+            timestamp: new Date(),
+          });
+          await notificationModel.create([
+            {
+              user: transaction[0].buyer,
+              message: `Your order to buy ${matchedQuantity} shares of ${stockDoc.symbol} at $${matchPrice} has been completed.`,
+              type: "TRADE_SUCCESS",
+            },
+            {
+              user: transaction[0].seller,
+              message: `You sold ${matchedQuantity} shares of ${
+                stockDoc.symbol
+              } at $${matchPrice}. Amount credited: $${
+                matchPrice * matchedQuantity - fees
+              }`,
+              type: "TRADE_SUCCESS",
+            },
+          ]);
           // Update portfolios and balances
           await this.updateUserPortfoliosAndBalances(
             transaction[0],
@@ -128,11 +160,18 @@ export class newOrderRepository {
     if (buyer) {
       const totalCost = matchPrice * matchedQuantity + fees;
       if (buyer.balance >= totalCost) {
-        buyer.balance -= totalCost; // Deduct balance
+        buyer.balance -= totalCost;
         await buyer.save();
         this.updatePortfolio(buyer, stockDoc._id, true, matchedQuantity);
       } else {
         console.error("Insufficient balance for buyer:", buyer._id);
+      }
+      if (buyer.email) {
+        sendEmail(
+          buyer.email,
+          "Stock Purchase Confirmation",
+          `Your order to buy ${matchedQuantity} shares of ${stockDoc.symbol} at $${matchPrice} has been completed.`
+        );
       }
     }
 
@@ -142,6 +181,17 @@ export class newOrderRepository {
       seller.balance += totalCredit; // Credit balance
       await seller.save();
       this.updatePortfolio(seller, stockDoc._id, false, matchedQuantity);
+      if (seller.email) {
+        sendEmail(
+          seller.email,
+          "Stock Sale Confirmation",
+          `You sold ${matchedQuantity} shares of ${
+            stockDoc.symbol
+          } at $${matchPrice}. Amount credited: $${
+            matchPrice * matchedQuantity - fees
+          }`
+        );
+      }
     }
   }
 

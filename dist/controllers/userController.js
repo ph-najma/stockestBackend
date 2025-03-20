@@ -14,13 +14,14 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.UserController = void 0;
 const mongoose_1 = __importDefault(require("mongoose"));
-const stockModel_1 = __importDefault(require("../models/stockModel"));
 const generative_ai_1 = require("@google/generative-ai");
 const Interfaces_1 = require("../interfaces/Interfaces");
 const multer_1 = __importDefault(require("multer"));
 const aws_sdk_1 = __importDefault(require("aws-sdk"));
+const helper_1 = __importDefault(require("../helper/helper"));
 const userModel_1 = __importDefault(require("../models/userModel"));
 const dotenv_1 = __importDefault(require("dotenv"));
+const Message_1 = require("../helper/Message");
 dotenv_1.default.config();
 class UserController {
     constructor(userService) {
@@ -35,20 +36,10 @@ class UserController {
             const { name, email, password, role } = req.body;
             try {
                 yield this.userService.signup(name, email, password, role);
-                const response = {
-                    success: true,
-                    message: "OTP sent to email",
-                    data: email,
-                };
-                res.status(Interfaces_1.HttpStatusCode.OK).json(response);
+                (0, helper_1.default)(res, Interfaces_1.HttpStatusCode.OK, true, Message_1.MESSAGES.LOGIN_SUCCESS, email);
             }
             catch (error) {
-                const response = {
-                    success: false,
-                    message: error.message,
-                    error: error.message,
-                };
-                res.status(Interfaces_1.HttpStatusCode.BAD_REQUEST).json(response);
+                (0, helper_1.default)(res, Interfaces_1.HttpStatusCode.BAD_REQUEST, false, error.message, null, error);
             }
         });
         //verify OTP
@@ -56,20 +47,10 @@ class UserController {
             const { otp } = req.body;
             try {
                 const result = yield this.userService.verifyOtp(otp);
-                const response = {
-                    success: true,
-                    message: "OTP verified",
-                    data: result,
-                };
-                res.status(Interfaces_1.HttpStatusCode.OK).json(response);
+                (0, helper_1.default)(res, Interfaces_1.HttpStatusCode.OK, true, Message_1.MESSAGES.OTP_VERIFY, result);
             }
             catch (error) {
-                const response = {
-                    success: false,
-                    message: error.message,
-                    error: error.message,
-                };
-                res.status(Interfaces_1.HttpStatusCode.BAD_REQUEST).json(response);
+                (0, helper_1.default)(res, Interfaces_1.HttpStatusCode.BAD_REQUEST, false, error.message, null, error);
             }
         });
         //Resend OTP
@@ -77,20 +58,10 @@ class UserController {
             const { email } = req.body;
             try {
                 const message = yield this.userService.resendOtp(email);
-                const response = {
-                    success: true,
-                    message: "OTP resended",
-                    data: message,
-                };
-                res.status(Interfaces_1.HttpStatusCode.OK).json(response);
+                (0, helper_1.default)(res, Interfaces_1.HttpStatusCode.OK, true, Message_1.MESSAGES.OTP_RESEND, message);
             }
             catch (error) {
-                const response = {
-                    success: false,
-                    message: error.message,
-                    error: error.message,
-                };
-                res.status(Interfaces_1.HttpStatusCode.BAD_REQUEST).json(response);
+                (0, helper_1.default)(res, Interfaces_1.HttpStatusCode.BAD_REQUEST, false, error.message, null, error);
             }
         });
         //Login
@@ -98,20 +69,10 @@ class UserController {
             const { email, password } = req.body;
             try {
                 const result = yield this.userService.login(email, password);
-                const response = {
-                    success: true,
-                    message: "Logged In successfully",
-                    data: result,
-                };
-                res.status(Interfaces_1.HttpStatusCode.OK).json(response);
+                (0, helper_1.default)(res, Interfaces_1.HttpStatusCode.OK, true, Message_1.MESSAGES.LOGIN_SUCCESS, result);
             }
             catch (error) {
-                const response = {
-                    success: false,
-                    message: error.message,
-                    error: error.message,
-                };
-                res.status(Interfaces_1.HttpStatusCode.BAD_REQUEST).json(response);
+                (0, helper_1.default)(res, Interfaces_1.HttpStatusCode.BAD_REQUEST, false, error.message, null, error);
             }
         });
         //Forgot Password
@@ -119,20 +80,10 @@ class UserController {
             const { email } = req.body;
             try {
                 yield this.userService.forgotPassword(email);
-                const response = {
-                    success: true,
-                    message: "OTP sent to email",
-                    data: email,
-                };
-                res.status(Interfaces_1.HttpStatusCode.OK).json(response);
+                (0, helper_1.default)(res, Interfaces_1.HttpStatusCode.OK, true, Message_1.MESSAGES.OTP_SENT, email);
             }
             catch (error) {
-                const response = {
-                    success: false,
-                    message: error.message,
-                    error: error.message,
-                };
-                res.status(Interfaces_1.HttpStatusCode.BAD_REQUEST).json(response);
+                (0, helper_1.default)(res, Interfaces_1.HttpStatusCode.BAD_REQUEST, false, error.message, null, error);
             }
         });
         //Reset Password
@@ -140,59 +91,29 @@ class UserController {
             const { email, otp, newPassword } = req.body;
             try {
                 yield this.userService.resetPassword(email, otp, newPassword);
-                const response = {
-                    success: true,
-                    message: "Password resetted sucessfully",
-                    data: email,
-                };
-                res.status(Interfaces_1.HttpStatusCode.OK).json(response);
+                (0, helper_1.default)(res, Interfaces_1.HttpStatusCode.OK, true, Message_1.MESSAGES.PASSWORD_RESET, email);
             }
             catch (error) {
-                const response = {
-                    success: false,
-                    message: error.message,
-                    error: error.message,
-                };
-                res.status(Interfaces_1.HttpStatusCode.BAD_REQUEST).json(response);
+                (0, helper_1.default)(res, Interfaces_1.HttpStatusCode.BAD_REQUEST, false, error.message, null, error);
             }
         });
         this.getStockList = (req, res) => __awaiter(this, void 0, void 0, function* () {
             try {
                 const stocks = yield this.userService.getAllStocks();
-                const response = {
-                    success: true,
-                    message: "Stocklist",
-                    data: stocks,
-                };
-                res.status(Interfaces_1.HttpStatusCode.OK).json(response);
+                (0, helper_1.default)(res, Interfaces_1.HttpStatusCode.OK, true, Message_1.MESSAGES.STOCK_LIST, stocks);
             }
             catch (error) {
-                const response = {
-                    success: false,
-                    message: error.message,
-                    error: error.message,
-                };
-                res.status(Interfaces_1.HttpStatusCode.BAD_REQUEST).json(response);
+                (0, helper_1.default)(res, Interfaces_1.HttpStatusCode.BAD_REQUEST, false, error.message, null, error);
             }
         });
         //User Profile
         this.getUserProfile = (req, res) => __awaiter(this, void 0, void 0, function* () {
             try {
                 const user = yield this.userService.getUserProfile(req.userId);
-                const response = {
-                    success: true,
-                    message: "User profile",
-                    data: user,
-                };
-                res.status(Interfaces_1.HttpStatusCode.OK).json(response);
+                (0, helper_1.default)(res, Interfaces_1.HttpStatusCode.OK, true, Message_1.MESSAGES.USER_PROFILE, user);
             }
             catch (error) {
-                const response = {
-                    success: false,
-                    message: error.message,
-                    error: error.message,
-                };
-                res.status(Interfaces_1.HttpStatusCode.BAD_REQUEST).json(response);
+                (0, helper_1.default)(res, Interfaces_1.HttpStatusCode.BAD_REQUEST, false, error.message, null, error);
             }
         });
         //User Portfolio
@@ -206,52 +127,35 @@ class UserController {
                     return;
                 }
                 const portfolioData = yield this.userService.getUpdatedPortfolio(user);
-                const response = {
-                    success: true,
-                    message: "User portfolio",
-                    data: portfolioData,
-                };
-                res.status(Interfaces_1.HttpStatusCode.OK).json(response);
+                (0, helper_1.default)(res, Interfaces_1.HttpStatusCode.OK, true, Message_1.MESSAGES.USER_PORTFOLIO, portfolioData);
             }
             catch (error) {
-                res
-                    .status(Interfaces_1.HttpStatusCode.BAD_REQUEST)
-                    .json({ success: false, message: error.message, error: error.message });
+                (0, helper_1.default)(res, Interfaces_1.HttpStatusCode.BAD_REQUEST, false, error.message, null, error);
             }
         });
         //placeOrder
         this.placeOrder = (req, res) => __awaiter(this, void 0, void 0, function* () {
-            const { stock, type, orderType, quantity, price, stopPrice, isIntraday } = req.body;
-            const user = req.userId
-                ? new mongoose_1.default.Types.ObjectId(req.userId)
-                : undefined;
-            const order = yield this.userService.placeOrder(user, stock, type, orderType, quantity, price, stopPrice, isIntraday);
-            const response = {
-                success: true,
-                message: "Order placed",
-                data: order,
-            };
-            res.status(Interfaces_1.HttpStatusCode.OK).json(response);
+            try {
+                const { stock, type, orderType, quantity, price, stopPrice, isIntraday } = req.body;
+                const user = req.userId
+                    ? new mongoose_1.default.Types.ObjectId(req.userId)
+                    : undefined;
+                const order = yield this.userService.placeOrder(user, stock, type, orderType, quantity, price, stopPrice, isIntraday);
+                (0, helper_1.default)(res, Interfaces_1.HttpStatusCode.OK, true, Message_1.MESSAGES.PLACE_ORDER, order);
+            }
+            catch (error) {
+                (0, helper_1.default)(res, Interfaces_1.HttpStatusCode.BAD_REQUEST, false, error.message, null, error);
+            }
         });
         //Get Watchlist
         this.getWatchlist = (req, res) => __awaiter(this, void 0, void 0, function* () {
             try {
                 const userId = req.userId;
                 const watchlist = yield this.userService.getWatchlist(userId);
-                const response = {
-                    success: true,
-                    message: "Watchlist",
-                    data: watchlist,
-                };
-                res.status(Interfaces_1.HttpStatusCode.OK).json(response);
+                (0, helper_1.default)(res, Interfaces_1.HttpStatusCode.OK, true, Message_1.MESSAGES.WATCHLIST, watchlist);
             }
             catch (error) {
-                const response = {
-                    success: false,
-                    message: error.message,
-                    error: error.message,
-                };
-                res.status(Interfaces_1.HttpStatusCode.BAD_REQUEST).json(response);
+                (0, helper_1.default)(res, Interfaces_1.HttpStatusCode.BAD_REQUEST, false, error.message, null, error);
             }
         });
         //Transaction
@@ -261,40 +165,20 @@ class UserController {
                 const limit = parseInt(req.query.limit, 10) || 10;
                 const skip = (page - 1) * limit;
                 const transactions = yield this.userService.getTransactions(req.userId, skip, limit);
-                const response = {
-                    success: true,
-                    message: "Transactions details",
-                    data: transactions,
-                };
-                res.status(Interfaces_1.HttpStatusCode.OK).json(response);
+                (0, helper_1.default)(res, Interfaces_1.HttpStatusCode.OK, true, Message_1.MESSAGES.TRANSACTIONS_RETRIEVED, transactions);
             }
             catch (error) {
-                const response = {
-                    success: false,
-                    message: error.message,
-                    error: error.message,
-                };
-                res.status(Interfaces_1.HttpStatusCode.BAD_REQUEST).json(response);
+                (0, helper_1.default)(res, Interfaces_1.HttpStatusCode.BAD_REQUEST, false, error.message, null, error);
             }
         });
         this.updatePortfolioAfterSell = (req, res) => __awaiter(this, void 0, void 0, function* () {
             try {
                 const { userId, stockId, quantityToSell } = req.body;
                 const updatedData = yield this.userService.updatePortfolioAfterSell(userId, stockId, quantityToSell);
-                const response = {
-                    success: true,
-                    message: "Updated Portfolio After sell",
-                    data: updatedData,
-                };
-                res.status(Interfaces_1.HttpStatusCode.OK).json(response);
+                (0, helper_1.default)(res, Interfaces_1.HttpStatusCode.OK, true, Message_1.MESSAGES.PORTFOLIO_UPDATION, updatedData);
             }
             catch (error) {
-                const response = {
-                    success: false,
-                    message: error.message,
-                    error: error.message,
-                };
-                res.status(Interfaces_1.HttpStatusCode.BAD_REQUEST).json(response);
+                (0, helper_1.default)(res, Interfaces_1.HttpStatusCode.BAD_REQUEST, false, error.message, null, error);
             }
         });
         this.ensureWatchlistAndAddStock = (req, res) => __awaiter(this, void 0, void 0, function* () {
@@ -303,22 +187,11 @@ class UserController {
                 const userId = req.userId;
                 const { stocks } = req.body;
                 const stockId = (_a = stocks[0]) === null || _a === void 0 ? void 0 : _a.stockId;
-                const stock = yield stockModel_1.default.findOne({ symbol: stockId });
                 const updatedWathclist = yield this.userService.ensureWatchlistAndAddStock(userId, stockId);
-                const response = {
-                    success: true,
-                    message: "Added stock to watchlist",
-                    data: updatedWathclist,
-                };
-                res.status(Interfaces_1.HttpStatusCode.OK).json(response);
+                (0, helper_1.default)(res, Interfaces_1.HttpStatusCode.OK, true, Message_1.MESSAGES.ADD_TO_WATCHLIST, updatedWathclist);
             }
             catch (error) {
-                const response = {
-                    success: false,
-                    message: error.message,
-                    error: error.message,
-                };
-                res.status(Interfaces_1.HttpStatusCode.BAD_REQUEST).json(response);
+                (0, helper_1.default)(res, Interfaces_1.HttpStatusCode.BAD_REQUEST, false, error.message, null, error);
             }
         });
         this.getStockData = (req, res) => __awaiter(this, void 0, void 0, function* () {
@@ -326,21 +199,10 @@ class UserController {
                 const symbol = req.query.symbol;
                 const updatedSymbol = symbol === null || symbol === void 0 ? void 0 : symbol.toString();
                 const stockData = yield this.userService.getStockData(updatedSymbol);
-                const response = {
-                    success: true,
-                    message: "StockData",
-                    data: stockData,
-                };
-                console.log(response);
-                res.status(Interfaces_1.HttpStatusCode.OK).json(response);
+                (0, helper_1.default)(res, Interfaces_1.HttpStatusCode.OK, true, Message_1.MESSAGES.STOCK_LIST, stockData);
             }
             catch (error) {
-                const response = {
-                    success: false,
-                    message: error.message,
-                    error: error.message,
-                };
-                res.status(Interfaces_1.HttpStatusCode.BAD_REQUEST).json(response);
+                (0, helper_1.default)(res, Interfaces_1.HttpStatusCode.BAD_REQUEST, false, error.message, null, error);
             }
         });
         this.getHistorical = (req, res) => __awaiter(this, void 0, void 0, function* () {
@@ -348,138 +210,78 @@ class UserController {
                 const symbol = req.query.symbol;
                 const updatedSymbol = symbol === null || symbol === void 0 ? void 0 : symbol.toString();
                 const stockData = yield this.userService.getHistorical(updatedSymbol);
-                const response = {
-                    success: true,
-                    message: "History stock data",
-                    data: stockData,
-                };
-                res.status(Interfaces_1.HttpStatusCode.OK).json(response);
+                (0, helper_1.default)(res, Interfaces_1.HttpStatusCode.OK, true, Message_1.MESSAGES.STOCK_HISTORY, stockData);
             }
             catch (error) {
-                const response = {
-                    success: false,
-                    message: error.message,
-                    error: error.message,
-                };
-                res.status(Interfaces_1.HttpStatusCode.BAD_REQUEST).json(response);
+                (0, helper_1.default)(res, Interfaces_1.HttpStatusCode.BAD_REQUEST, false, error.message, null, error);
             }
         });
-        this.getReferralCode = (req, res) => __awaiter(this, void 0, void 0, function* () {
-            const userId = req.userId;
-            const referralCode = yield this.userService.getReferralCode(userId);
-            const response = {
-                success: true,
-                message: "Referral code",
-                data: referralCode,
-            };
-            res.status(Interfaces_1.HttpStatusCode.OK).json(response);
-        });
         this.getOrders = (req, res) => __awaiter(this, void 0, void 0, function* () {
-            const userId = req.userId;
-            const page = parseInt(req.query.page, 10) || 1;
-            const limit = parseInt(req.query.limit, 10) || 10; // Default to 10 items per page
-            const skip = (page - 1) * limit;
-            const totalOrders = yield this.userService.countOrders(userId);
-            const orders = yield this.userService.getOrders(userId, skip, limit);
-            const response = {
-                success: true,
-                message: "All Orders",
-                data: {
+            try {
+                const userId = req.userId;
+                const page = parseInt(req.query.page, 10) || 1;
+                const limit = parseInt(req.query.limit, 10) || 10; // Default to 10 items per page
+                const skip = (page - 1) * limit;
+                const totalOrders = yield this.userService.countOrders(userId);
+                const orders = yield this.userService.getOrders(userId, skip, limit);
+                (0, helper_1.default)(res, Interfaces_1.HttpStatusCode.OK, true, Message_1.MESSAGES.ALL_ORDERS, {
                     orders,
                     totalOrders,
                     currentPage: page,
                     totalPages: Math.ceil(totalOrders / limit),
-                },
-            };
-            res.status(Interfaces_1.HttpStatusCode.OK).json(response);
+                });
+            }
+            catch (error) {
+                (0, helper_1.default)(res, Interfaces_1.HttpStatusCode.BAD_REQUEST, false, error.message, null, error);
+            }
         });
         this.getPromotions = (req, res) => __awaiter(this, void 0, void 0, function* () {
-            const userId = req.userId;
-            const user = yield this.userService.getUserProfileWithRewards(userId);
-            const response = {
-                success: true,
-                message: "Promotions for the user",
-                data: user,
-            };
-            res.status(Interfaces_1.HttpStatusCode.OK).json(response);
+            try {
+                const userId = req.userId;
+                const user = yield this.userService.getUserProfileWithRewards(userId);
+                (0, helper_1.default)(res, Interfaces_1.HttpStatusCode.OK, true, Message_1.MESSAGES.USER_PROMOTION, user);
+            }
+            catch (error) {
+                (0, helper_1.default)(res, Interfaces_1.HttpStatusCode.BAD_REQUEST, false, error.message, null, error);
+            }
         });
         this.getTradeDiary = (req, res) => __awaiter(this, void 0, void 0, function* () {
             try {
                 const userId = req.userId;
                 const tradeData = yield this.userService.getTradeDiary(userId);
-                const response = {
-                    success: true,
-                    message: "Trade Data",
-                    data: tradeData,
-                };
-                res.status(Interfaces_1.HttpStatusCode.OK).json(response);
+                (0, helper_1.default)(res, Interfaces_1.HttpStatusCode.OK, true, Message_1.MESSAGES.TRADE_DIARY_DATA, tradeData);
             }
             catch (error) {
-                const response = {
-                    success: false,
-                    message: error.message,
-                    error: error.message,
-                };
-                res.status(Interfaces_1.HttpStatusCode.BAD_REQUEST).json(response);
+                (0, helper_1.default)(res, Interfaces_1.HttpStatusCode.BAD_REQUEST, false, error.message, null, error);
             }
         });
         this.getActiveSessions = (req, res) => __awaiter(this, void 0, void 0, function* () {
             try {
                 const sessionData = yield this.userService.getActiveSessions();
-                const response = {
-                    success: true,
-                    message: "Active sessions",
-                    data: sessionData,
-                };
-                res.status(Interfaces_1.HttpStatusCode.OK).json(response);
+                (0, helper_1.default)(res, Interfaces_1.HttpStatusCode.OK, true, Message_1.MESSAGES.ACTIVE_SESSIONS, sessionData);
             }
             catch (error) {
-                const response = {
-                    success: false,
-                    message: error.message,
-                    error: error.message,
-                };
-                res.status(Interfaces_1.HttpStatusCode.BAD_REQUEST).json(response);
+                (0, helper_1.default)(res, Interfaces_1.HttpStatusCode.BAD_REQUEST, false, error.message, null, error);
             }
         });
         this.getPurchased = (req, res) => __awaiter(this, void 0, void 0, function* () {
             try {
                 const userId = req.userId;
                 const sessionData = yield this.userService.getPurchased(userId);
-                const response = {
-                    success: true,
-                    message: "Purchased sessions",
-                    data: sessionData,
-                };
-                res.status(Interfaces_1.HttpStatusCode.OK).json(response);
+                (0, helper_1.default)(res, Interfaces_1.HttpStatusCode.OK, true, Message_1.MESSAGES.PURCHASED_SESSIONS, sessionData);
             }
             catch (error) {
-                const response = {
-                    success: false,
-                    message: error.message,
-                    error: error.message,
-                };
-                res.status(Interfaces_1.HttpStatusCode.BAD_REQUEST).json(response);
+                (0, helper_1.default)(res, Interfaces_1.HttpStatusCode.BAD_REQUEST, false, error.message, null, error);
             }
         });
         this.getAssigned = (req, res) => __awaiter(this, void 0, void 0, function* () {
             try {
                 const intructorId = req.userId;
                 const sessionData = yield this.userService.getAssignedSession(intructorId);
-                const response = {
-                    success: true,
-                    message: "Purchased sessions",
-                    data: sessionData,
-                };
-                res.status(Interfaces_1.HttpStatusCode.OK).json(response);
+                (0, helper_1.default)(res, Interfaces_1.HttpStatusCode.OK, true, Message_1.MESSAGES.ASSIGNED_SESSIONS, sessionData);
             }
             catch (error) {
-                const response = {
-                    success: false,
-                    message: error.message,
-                    error: error.message,
-                };
-                res.status(Interfaces_1.HttpStatusCode.BAD_REQUEST).json(response);
+                (0, helper_1.default)(res, Interfaces_1.HttpStatusCode.BAD_REQUEST, false, error.message, null, error);
             }
         });
         this.getBySearch = (req, res) => __awaiter(this, void 0, void 0, function* () {
@@ -497,20 +299,10 @@ class UserController {
                 if (maxPrice)
                     query.price = Object.assign(Object.assign({}, query.price), { $lte: parseFloat(maxPrice) });
                 const stocks = yield this.userService.getBySearch(query);
-                const response = {
-                    success: true,
-                    message: "Searched stocks",
-                    data: stocks,
-                };
-                res.status(Interfaces_1.HttpStatusCode.OK).json(response);
+                (0, helper_1.default)(res, Interfaces_1.HttpStatusCode.OK, true, Message_1.MESSAGES.SEARCH_RESULT, stocks);
             }
             catch (error) {
-                const response = {
-                    success: false,
-                    message: error.message,
-                    error: error.message,
-                };
-                res.status(Interfaces_1.HttpStatusCode.BAD_REQUEST).json(response);
+                (0, helper_1.default)(res, Interfaces_1.HttpStatusCode.BAD_REQUEST, false, error.message, null, error);
             }
         });
         this.generate = (req, res) => __awaiter(this, void 0, void 0, function* () {
@@ -533,30 +325,26 @@ class UserController {
                 res.json({ response: result.response.text() });
             }
             catch (error) {
-                console.error("Error generating content:", error);
-                res.status(500).json({ error: "Failed to generate content." });
+                (0, helper_1.default)(res, Interfaces_1.HttpStatusCode.BAD_REQUEST, false, error.message, null, error);
             }
         });
         this.refreshToken = (req, res) => __awaiter(this, void 0, void 0, function* () {
-            const { refreshToken } = req.body;
-            if (!refreshToken) {
-                res
-                    .status(Interfaces_1.HttpStatusCode.INTERNAL_SERVER_ERROR)
-                    .json({ error: "Refresh token is required." });
+            try {
+                const { refreshToken } = req.body;
+                if (!refreshToken) {
+                    res
+                        .status(Interfaces_1.HttpStatusCode.INTERNAL_SERVER_ERROR)
+                        .json({ error: "Refresh token is required." });
+                }
+                const newToken = yield this.userService.refreshToken(refreshToken);
+                (0, helper_1.default)(res, Interfaces_1.HttpStatusCode.OK, true, Message_1.MESSAGES.REFRESH_TOKEN, newToken);
             }
-            const newToken = yield this.userService.refreshToken(refreshToken);
-            const response = {
-                success: true,
-                message: "Searched stocks",
-                data: newToken,
-            };
-            res.status(Interfaces_1.HttpStatusCode.OK).json(response);
+            catch (error) {
+                (0, helper_1.default)(res, Interfaces_1.HttpStatusCode.BAD_REQUEST, false, error.message, null, error);
+            }
         });
         this.getSignedUrl = (req, res) => __awaiter(this, void 0, void 0, function* () {
             const { fileName, fileType } = req.query;
-            console.log(fileName, fileType);
-            console.log("AWS Region:", process.env.AWS_REGION);
-            console.log("AWS Bucket Name:", process.env.S3_BUCKET_NAME);
             if (!fileName || !fileType) {
                 return res.status(400).json({ error: "Missing fileName or fileType" });
             }
@@ -574,12 +362,8 @@ class UserController {
                     fileUrl: `https://${process.env.S3_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/profiles/${fileName}`,
                 });
             }
-            catch (err) {
-                console.error("Error generating signed URL:", err);
-                res.status(500).json({
-                    error: "Error generating signed URL",
-                    details: err.message,
-                });
+            catch (error) {
+                (0, helper_1.default)(res, Interfaces_1.HttpStatusCode.BAD_REQUEST, false, error.message, null, error);
             }
         });
         this.saveProfile = (req, res) => __awaiter(this, void 0, void 0, function* () {
@@ -593,8 +377,18 @@ class UserController {
                 const user = yield userModel_1.default.findOneAndUpdate({ email }, { profilePhoto: profileImageUrl }, { new: true, upsert: true });
                 res.json({ message: "Profile updated successfully", user });
             }
-            catch (err) {
-                res.status(500).json({ error: "Error updating profile", details: err });
+            catch (error) {
+                (0, helper_1.default)(res, Interfaces_1.HttpStatusCode.BAD_REQUEST, false, error.message, null, error);
+            }
+        });
+        this.getNotifications = (req, res) => __awaiter(this, void 0, void 0, function* () {
+            try {
+                const userId = req.userId;
+                const notificationData = yield this.userService.getNotifications(userId);
+                (0, helper_1.default)(res, Interfaces_1.HttpStatusCode.OK, true, Message_1.MESSAGES.PURCHASED_SESSIONS, notificationData);
+            }
+            catch (error) {
+                (0, helper_1.default)(res, Interfaces_1.HttpStatusCode.BAD_REQUEST, false, error.message, null, error);
             }
         });
         this.userService = userService;

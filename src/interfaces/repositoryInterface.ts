@@ -9,6 +9,7 @@ import {
   IUser,
   IOrder,
   IPromotion,
+  INotification,
 } from "./modelInterface";
 import { ILimitOrderQuery } from "./Interfaces";
 export interface IBaseRepository<T> {
@@ -147,4 +148,7 @@ export interface IPaymentRepository {
     paymentId: string,
     signature: string
   ): boolean;
+}
+export interface INotificationRepository {
+  getNotifications(userId: string | undefined): Promise<INotification[] | null>;
 }

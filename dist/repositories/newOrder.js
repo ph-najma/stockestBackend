@@ -18,6 +18,8 @@ const transactionModel_1 = __importDefault(require("../models/transactionModel")
 const stockModel_1 = __importDefault(require("../models/stockModel"));
 const userModel_1 = __importDefault(require("../models/userModel"));
 const server_1 = require("../server");
+const notificationModel_1 = __importDefault(require("../models/notificationModel"));
+const sendEmail_1 = require("../utils/sendEmail");
 class newOrderRepository {
     matchOrders() {
         return __awaiter(this, void 0, void 0, function* () {
@@ -105,6 +107,29 @@ class newOrderRepository {
                             },
                         ]);
                         server_1.io.emit("transaction-update", transaction[0]);
+                        // Send notifications to buyer and seller
+                        server_1.io.to(transaction[0].buyer.toString()).emit("notification", {
+                            message: `Your order to buy ${matchedQuantity} shares of ${stockDoc.symbol} at $${matchPrice} has been completed.`,
+                            type: "TRADE_SUCCESS",
+                            timestamp: new Date(),
+                        });
+                        server_1.io.to(transaction[0].seller.toString()).emit("notification", {
+                            message: `You sold ${matchedQuantity} shares of ${stockDoc.symbol} at $${matchPrice}. Amount credited: $${matchPrice * matchedQuantity - fees}`,
+                            type: "TRADE_SUCCESS",
+                            timestamp: new Date(),
+                        });
+                        yield notificationModel_1.default.create([
+                            {
+                                user: transaction[0].buyer,
+                                message: `Your order to buy ${matchedQuantity} shares of ${stockDoc.symbol} at $${matchPrice} has been completed.`,
+                                type: "TRADE_SUCCESS",
+                            },
+                            {
+                                user: transaction[0].seller,
+                                message: `You sold ${matchedQuantity} shares of ${stockDoc.symbol} at $${matchPrice}. Amount credited: $${matchPrice * matchedQuantity - fees}`,
+                                type: "TRADE_SUCCESS",
+                            },
+                        ]);
                         // Update portfolios and balances
                         yield this.updateUserPortfoliosAndBalances(transaction[0], stockDoc, type, matchedQuantity, matchPrice, fees);
                     }
@@ -123,12 +148,15 @@ class newOrderRepository {
             if (buyer) {
                 const totalCost = matchPrice * matchedQuantity + fees;
                 if (buyer.balance >= totalCost) {
-                    buyer.balance -= totalCost; // Deduct balance
+                    buyer.balance -= totalCost;
                     yield buyer.save();
                     this.updatePortfolio(buyer, stockDoc._id, true, matchedQuantity);
                 }
                 else {
                     console.error("Insufficient balance for buyer:", buyer._id);
+                }
+                if (buyer.email) {
+                    (0, sendEmail_1.sendEmail)(buyer.email, "Stock Purchase Confirmation", `Your order to buy ${matchedQuantity} shares of ${stockDoc.symbol} at $${matchPrice} has been completed.`);
                 }
             }
             // Update seller's portfolio and balance
@@ -137,6 +165,9 @@ class newOrderRepository {
                 seller.balance += totalCredit; // Credit balance
                 yield seller.save();
                 this.updatePortfolio(seller, stockDoc._id, false, matchedQuantity);
+                if (seller.email) {
+                    (0, sendEmail_1.sendEmail)(seller.email, "Stock Sale Confirmation", `You sold ${matchedQuantity} shares of ${stockDoc.symbol} at $${matchPrice}. Amount credited: $${matchPrice * matchedQuantity - fees}`);
+                }
             }
         });
     }

@@ -8,7 +8,7 @@ export class UserRepository
   implements IuserRepsitory
 {
   constructor() {
-    super(User);// Pass the User model to the base repository
+    super(User); // Pass the User model to the base repository
   }
   // Find user by email
   async findByEmail(email: string): Promise<IUser | null> {
@@ -32,6 +32,7 @@ export class UserRepository
 
   // Save a new user
   async save(userData: Partial<IUser>): Promise<IUser> {
+    console.log(userData);
     const user = new User(userData);
     return user.save();
   }

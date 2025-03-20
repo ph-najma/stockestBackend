@@ -1,5 +1,5 @@
-import { Request, Response } from "express";
-import { ResponseModel } from "../interfaces/Interfaces";
+import { Response } from "express";
+
 import { HttpStatusCode } from "../interfaces/Interfaces";
 
 const sendResponse = <T>(
@@ -12,7 +12,5 @@ const sendResponse = <T>(
 ) => {
   res.status(statusCode).json({ success, message, data, error });
 };
-
-
 
 export default sendResponse;

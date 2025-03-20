@@ -44,6 +44,7 @@ class UserRepository extends BaseRepository_1.BaseRepository {
     // Save a new user
     save(userData) {
         return __awaiter(this, void 0, void 0, function* () {
+            console.log(userData);
             const user = new userModel_1.default(userData);
             return user.save();
         });

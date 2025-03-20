@@ -11,6 +11,7 @@ import AWS from "aws-sdk";
 import sendResponse from "../helper/helper";
 import User from "../models/userModel";
 import dotenv from "dotenv";
+import { MESSAGES } from "../helper/Message";
 
 dotenv.config();
 
@@ -33,19 +34,16 @@ export class UserController implements IUserController {
     const { name, email, password, role } = req.body;
     try {
       await this.userService.signup(name, email, password, role);
-      const response: ResponseModel = {
-        success: true,
-        message: "OTP sent to email",
-        data: email,
-      };
-      res.status(HttpStatusCode.OK).json(response);
+      sendResponse(res, HttpStatusCode.OK, true, MESSAGES.LOGIN_SUCCESS, email);
     } catch (error: any) {
-      const response: ResponseModel = {
-        success: false,
-        message: error.message,
-        error: error.message,
-      };
-      res.status(HttpStatusCode.BAD_REQUEST).json(response);
+      sendResponse(
+        res,
+        HttpStatusCode.BAD_REQUEST,
+        false,
+        error.message,
+        null,
+        error
+      );
     }
   };
   //verify OTP
@@ -53,19 +51,17 @@ export class UserController implements IUserController {
     const { otp } = req.body;
     try {
       const result = await this.userService.verifyOtp(otp);
-      const response: ResponseModel = {
-        success: true,
-        message: "OTP verified",
-        data: result,
-      };
-      res.status(HttpStatusCode.OK).json(response);
+
+      sendResponse(res, HttpStatusCode.OK, true, MESSAGES.OTP_VERIFY, result);
     } catch (error: any) {
-      const response: ResponseModel = {
-        success: false,
-        message: error.message,
-        error: error.message,
-      };
-      res.status(HttpStatusCode.BAD_REQUEST).json(response);
+      sendResponse(
+        res,
+        HttpStatusCode.BAD_REQUEST,
+        false,
+        error.message,
+        null,
+        error
+      );
     }
   };
   //Resend OTP
@@ -73,19 +69,16 @@ export class UserController implements IUserController {
     const { email } = req.body;
     try {
       const message = await this.userService.resendOtp(email);
-      const response: ResponseModel = {
-        success: true,
-        message: "OTP resended",
-        data: message,
-      };
-      res.status(HttpStatusCode.OK).json(response);
+      sendResponse(res, HttpStatusCode.OK, true, MESSAGES.OTP_RESEND, message);
     } catch (error: any) {
-      const response: ResponseModel = {
-        success: false,
-        message: error.message,
-        error: error.message,
-      };
-      res.status(HttpStatusCode.BAD_REQUEST).json(response);
+      sendResponse(
+        res,
+        HttpStatusCode.BAD_REQUEST,
+        false,
+        error.message,
+        null,
+        error
+      );
     }
   };
   //Login
@@ -93,20 +86,22 @@ export class UserController implements IUserController {
     const { email, password } = req.body;
     try {
       const result = await this.userService.login(email, password);
-      const response: ResponseModel = {
-        success: true,
-        message: "Logged In successfully",
-        data: result,
-      };
-
-      res.status(HttpStatusCode.OK).json(response);
+      sendResponse(
+        res,
+        HttpStatusCode.OK,
+        true,
+        MESSAGES.LOGIN_SUCCESS,
+        result
+      );
     } catch (error: any) {
-      const response: ResponseModel = {
-        success: false,
-        message: error.message,
-        error: error.message,
-      };
-      res.status(HttpStatusCode.BAD_REQUEST).json(response);
+      sendResponse(
+        res,
+        HttpStatusCode.BAD_REQUEST,
+        false,
+        error.message,
+        null,
+        error
+      );
     }
   };
   //Forgot Password
@@ -117,19 +112,16 @@ export class UserController implements IUserController {
     const { email } = req.body;
     try {
       await this.userService.forgotPassword(email);
-      const response: ResponseModel = {
-        success: true,
-        message: "OTP sent to email",
-        data: email,
-      };
-      res.status(HttpStatusCode.OK).json(response);
+      sendResponse(res, HttpStatusCode.OK, true, MESSAGES.OTP_SENT, email);
     } catch (error: any) {
-      const response: ResponseModel = {
-        success: false,
-        message: error.message,
-        error: error.message,
-      };
-      res.status(HttpStatusCode.BAD_REQUEST).json(response);
+      sendResponse(
+        res,
+        HttpStatusCode.BAD_REQUEST,
+        false,
+        error.message,
+        null,
+        error
+      );
     }
   };
   //Reset Password
@@ -137,38 +129,39 @@ export class UserController implements IUserController {
     const { email, otp, newPassword } = req.body;
     try {
       await this.userService.resetPassword(email, otp, newPassword);
-      const response: ResponseModel = {
-        success: true,
-        message: "Password resetted sucessfully",
-        data: email,
-      };
-      res.status(HttpStatusCode.OK).json(response);
+
+      sendResponse(
+        res,
+        HttpStatusCode.OK,
+        true,
+        MESSAGES.PASSWORD_RESET,
+        email
+      );
     } catch (error: any) {
-      const response: ResponseModel = {
-        success: false,
-        message: error.message,
-        error: error.message,
-      };
-      res.status(HttpStatusCode.BAD_REQUEST).json(response);
+      sendResponse(
+        res,
+        HttpStatusCode.BAD_REQUEST,
+        false,
+        error.message,
+        null,
+        error
+      );
     }
   };
 
   public getStockList = async (req: Request, res: Response): Promise<void> => {
     try {
       const stocks = await this.userService.getAllStocks();
-      const response: ResponseModel = {
-        success: true,
-        message: "Stocklist",
-        data: stocks,
-      };
-      res.status(HttpStatusCode.OK).json(response);
+      sendResponse(res, HttpStatusCode.OK, true, MESSAGES.STOCK_LIST, stocks);
     } catch (error: any) {
-      const response: ResponseModel = {
-        success: false,
-        message: error.message,
-        error: error.message,
-      };
-      res.status(HttpStatusCode.BAD_REQUEST).json(response);
+      sendResponse(
+        res,
+        HttpStatusCode.BAD_REQUEST,
+        false,
+        error.message,
+        null,
+        error
+      );
     }
   };
   //User Profile
@@ -178,19 +171,16 @@ export class UserController implements IUserController {
   ): Promise<void> => {
     try {
       const user = await this.userService.getUserProfile(req.userId);
-      const response: ResponseModel = {
-        success: true,
-        message: "User profile",
-        data: user,
-      };
-      res.status(HttpStatusCode.OK).json(response);
+      sendResponse(res, HttpStatusCode.OK, true, MESSAGES.USER_PROFILE, user);
     } catch (error: any) {
-      const response: ResponseModel = {
-        success: false,
-        message: error.message,
-        error: error.message,
-      };
-      res.status(HttpStatusCode.BAD_REQUEST).json(response);
+      sendResponse(
+        res,
+        HttpStatusCode.BAD_REQUEST,
+        false,
+        error.message,
+        null,
+        error
+      );
     }
   };
 
@@ -209,62 +199,71 @@ export class UserController implements IUserController {
       }
 
       const portfolioData = await this.userService.getUpdatedPortfolio(user);
-
-      const response: ResponseModel = {
-        success: true,
-        message: "User portfolio",
-        data: portfolioData,
-      };
-      res.status(HttpStatusCode.OK).json(response);
+      sendResponse(
+        res,
+        HttpStatusCode.OK,
+        true,
+        MESSAGES.USER_PORTFOLIO,
+        portfolioData
+      );
     } catch (error: any) {
-      res
-        .status(HttpStatusCode.BAD_REQUEST)
-        .json({ success: false, message: error.message, error: error.message });
+      sendResponse(
+        res,
+        HttpStatusCode.BAD_REQUEST,
+        false,
+        error.message,
+        null,
+        error
+      );
     }
   };
   //placeOrder
   public placeOrder = async (req: Request, res: Response): Promise<void> => {
-    const { stock, type, orderType, quantity, price, stopPrice, isIntraday } =
-      req.body;
-    const user = req.userId
-      ? new mongoose.Types.ObjectId(req.userId)
-      : undefined;
+    try {
+      const { stock, type, orderType, quantity, price, stopPrice, isIntraday } =
+        req.body;
+      const user = req.userId
+        ? new mongoose.Types.ObjectId(req.userId)
+        : undefined;
 
-    const order = await this.userService.placeOrder(
-      user,
-      stock,
-      type,
-      orderType,
-      quantity,
-      price,
-      stopPrice,
-      isIntraday
-    );
-    const response: ResponseModel = {
-      success: true,
-      message: "Order placed",
-      data: order,
-    };
-    res.status(HttpStatusCode.OK).json(response);
+      const order = await this.userService.placeOrder(
+        user,
+        stock,
+        type,
+        orderType,
+        quantity,
+        price,
+        stopPrice,
+        isIntraday
+      );
+      sendResponse(res, HttpStatusCode.OK, true, MESSAGES.PLACE_ORDER, order);
+    } catch (error: any) {
+      sendResponse(
+        res,
+        HttpStatusCode.BAD_REQUEST,
+        false,
+        error.message,
+        null,
+        error
+      );
+    }
   };
   //Get Watchlist
   public getWatchlist = async (req: Request, res: Response): Promise<void> => {
     try {
       const userId = req.userId;
       const watchlist = await this.userService.getWatchlist(userId);
-      const response: ResponseModel = {
-        success: true,
-        message: "Watchlist",
-        data: watchlist,
-      };
-      res.status(HttpStatusCode.OK).json(response);
+
+      sendResponse(res, HttpStatusCode.OK, true, MESSAGES.WATCHLIST, watchlist);
     } catch (error: any) {
-      const response: ResponseModel = {
-        success: false,
-        message: error.message,
-        error: error.message,
-      };
-      res.status(HttpStatusCode.BAD_REQUEST).json(response);
+      sendResponse(
+        res,
+        HttpStatusCode.BAD_REQUEST,
+        false,
+        error.message,
+        null,
+        error
+      );
     }
   };
 
@@ -282,19 +281,24 @@ export class UserController implements IUserController {
         skip,
         limit
       );
-      const response: ResponseModel = {
-        success: true,
-        message: "Transactions details",
-        data: transactions,
-      };
-      res.status(HttpStatusCode.OK).json(response);
+
+      sendResponse(
+        res,
+        HttpStatusCode.OK,
+        true,
+        MESSAGES.TRANSACTIONS_RETRIEVED,
+
+        transactions
+      );
     } catch (error: any) {
-      const response: ResponseModel = {
-        success: false,
-        message: error.message,
-        error: error.message,
-      };
-      res.status(HttpStatusCode.BAD_REQUEST).json(response);
+      sendResponse(
+        res,
+        HttpStatusCode.BAD_REQUEST,
+        false,
+        error.message,
+        null,
+        error
+      );
     }
   };
   public updatePortfolioAfterSell = async (
@@ -308,19 +312,23 @@ export class UserController implements IUserController {
         stockId,
         quantityToSell
       );
-      const response: ResponseModel = {
-        success: true,
-        message: "Updated Portfolio After sell",
-        data: updatedData,
-      };
-      res.status(HttpStatusCode.OK).json(response);
+
+      sendResponse(
+        res,
+        HttpStatusCode.OK,
+        true,
+        MESSAGES.PORTFOLIO_UPDATION,
+        updatedData
+      );
     } catch (error: any) {
-      const response: ResponseModel = {
-        success: false,
-        message: error.message,
-        error: error.message,
-      };
-      res.status(HttpStatusCode.BAD_REQUEST).json(response);
+      sendResponse(
+        res,
+        HttpStatusCode.BAD_REQUEST,
+        false,
+        error.message,
+        null,
+        error
+      );
     }
   };
   public ensureWatchlistAndAddStock = async (
@@ -333,23 +341,25 @@ export class UserController implements IUserController {
 
       const stockId = stocks[0]?.stockId;
 
-      const stock = await Stock.findOne({ symbol: stockId });
-
       const updatedWathclist =
         await this.userService.ensureWatchlistAndAddStock(userId, stockId);
-      const response: ResponseModel = {
-        success: true,
-        message: "Added stock to watchlist",
-        data: updatedWathclist,
-      };
-      res.status(HttpStatusCode.OK).json(response);
+
+      sendResponse(
+        res,
+        HttpStatusCode.OK,
+        true,
+        MESSAGES.ADD_TO_WATCHLIST,
+        updatedWathclist
+      );
     } catch (error: any) {
-      const response: ResponseModel = {
-        success: false,
-        message: error.message,
-        error: error.message,
-      };
-      res.status(HttpStatusCode.BAD_REQUEST).json(response);
+      sendResponse(
+        res,
+        HttpStatusCode.BAD_REQUEST,
+        false,
+        error.message,
+        null,
+        error
+      );
     }
   };
   public getStockData = async (req: Request, res: Response): Promise<void> => {
@@ -357,20 +367,22 @@ export class UserController implements IUserController {
       const symbol = req.query.symbol;
       const updatedSymbol = symbol?.toString();
       const stockData = await this.userService.getStockData(updatedSymbol);
-      const response: ResponseModel = {
-        success: true,
-        message: "StockData",
-        data: stockData,
-      };
-      console.log(response);
-      res.status(HttpStatusCode.OK).json(response);
+      sendResponse(
+        res,
+        HttpStatusCode.OK,
+        true,
+        MESSAGES.STOCK_LIST,
+        stockData
+      );
     } catch (error: any) {
-      const response: ResponseModel = {
-        success: false,
-        message: error.message,
-        error: error.message,
-      };
-      res.status(HttpStatusCode.BAD_REQUEST).json(response);
+      sendResponse(
+        res,
+        HttpStatusCode.BAD_REQUEST,
+        false,
+        error.message,
+        null,
+        error
+      );
     }
   };
   public getHistorical = async (req: Request, res: Response): Promise<void> => {
@@ -378,82 +390,89 @@ export class UserController implements IUserController {
       const symbol = req.query.symbol;
       const updatedSymbol = symbol?.toString();
       const stockData = await this.userService.getHistorical(updatedSymbol);
-      const response: ResponseModel = {
-        success: true,
-        message: "History stock data",
-        data: stockData,
-      };
-      res.status(HttpStatusCode.OK).json(response);
+      sendResponse(
+        res,
+        HttpStatusCode.OK,
+        true,
+        MESSAGES.STOCK_HISTORY,
+        stockData
+      );
     } catch (error: any) {
-      const response: ResponseModel = {
-        success: false,
-        message: error.message,
-        error: error.message,
-      };
-      res.status(HttpStatusCode.BAD_REQUEST).json(response);
+      sendResponse(
+        res,
+        HttpStatusCode.BAD_REQUEST,
+        false,
+        error.message,
+        null,
+        error
+      );
     }
   };
-  public getReferralCode = async (
-    req: Request,
-    res: Response
-  ): Promise<void> => {
-    const userId = req.userId;
-    const referralCode = await this.userService.getReferralCode(userId);
-    const response: ResponseModel = {
-      success: true,
-      message: "Referral code",
-      data: referralCode,
-    };
-    res.status(HttpStatusCode.OK).json(response);
-  };
-  public getOrders = async (req: Request, res: Response): Promise<void> => {
-    const userId = req.userId;
-    const page = parseInt(req.query.page as string, 10) || 1;
-    const limit = parseInt(req.query.limit as string, 10) || 10; // Default to 10 items per page
 
-    const skip = (page - 1) * limit;
-    const totalOrders = await this.userService.countOrders(userId);
-    const orders = await this.userService.getOrders(userId, skip, limit);
-    const response: ResponseModel = {
-      success: true,
-      message: "All Orders",
-      data: {
+  public getOrders = async (req: Request, res: Response): Promise<void> => {
+    try {
+      const userId = req.userId;
+      const page = parseInt(req.query.page as string, 10) || 1;
+      const limit = parseInt(req.query.limit as string, 10) || 10; // Default to 10 items per page
+
+      const skip = (page - 1) * limit;
+      const totalOrders = await this.userService.countOrders(userId);
+      const orders = await this.userService.getOrders(userId, skip, limit);
+
+      sendResponse(res, HttpStatusCode.OK, true, MESSAGES.ALL_ORDERS, {
         orders,
         totalOrders,
         currentPage: page,
         totalPages: Math.ceil(totalOrders / limit),
-      },
-    };
-    res.status(HttpStatusCode.OK).json(response);
+      });
+    } catch (error: any) {
+      sendResponse(
+        res,
+        HttpStatusCode.BAD_REQUEST,
+        false,
+        error.message,
+        null,
+        error
+      );
+    }
   };
   public getPromotions = async (req: Request, res: Response): Promise<void> => {
-    const userId = req.userId;
-    const user = await this.userService.getUserProfileWithRewards(userId);
-    const response: ResponseModel = {
-      success: true,
-      message: "Promotions for the user",
-      data: user,
-    };
-    res.status(HttpStatusCode.OK).json(response);
+    try {
+      const userId = req.userId;
+      const user = await this.userService.getUserProfileWithRewards(userId);
+
+      sendResponse(res, HttpStatusCode.OK, true, MESSAGES.USER_PROMOTION, user);
+    } catch (error: any) {
+      sendResponse(
+        res,
+        HttpStatusCode.BAD_REQUEST,
+        false,
+        error.message,
+        null,
+        error
+      );
+    }
   };
   public getTradeDiary = async (req: Request, res: Response): Promise<void> => {
     try {
       const userId = req.userId;
-
       const tradeData = await this.userService.getTradeDiary(userId);
-      const response: ResponseModel = {
-        success: true,
-        message: "Trade Data",
-        data: tradeData,
-      };
-      res.status(HttpStatusCode.OK).json(response);
+      sendResponse(
+        res,
+        HttpStatusCode.OK,
+        true,
+        MESSAGES.TRADE_DIARY_DATA,
+        tradeData
+      );
     } catch (error: any) {
-      const response: ResponseModel = {
-        success: false,
-        message: error.message,
-        error: error.message,
-      };
-      res.status(HttpStatusCode.BAD_REQUEST).json(response);
+      sendResponse(
+        res,
+        HttpStatusCode.BAD_REQUEST,
+        false,
+        error.message,
+        null,
+        error
+      );
     }
   };
 
@@ -463,38 +482,45 @@ export class UserController implements IUserController {
   ): Promise<void> => {
     try {
       const sessionData = await this.userService.getActiveSessions();
-      const response: ResponseModel = {
-        success: true,
-        message: "Active sessions",
-        data: sessionData,
-      };
-      res.status(HttpStatusCode.OK).json(response);
+      sendResponse(
+        res,
+        HttpStatusCode.OK,
+        true,
+        MESSAGES.ACTIVE_SESSIONS,
+        sessionData
+      );
     } catch (error: any) {
-      const response: ResponseModel = {
-        success: false,
-        message: error.message,
-        error: error.message,
-      };
-      res.status(HttpStatusCode.BAD_REQUEST).json(response);
+      sendResponse(
+        res,
+        HttpStatusCode.BAD_REQUEST,
+        false,
+        error.message,
+        null,
+        error
+      );
     }
   };
   public getPurchased = async (req: Request, res: Response): Promise<void> => {
     try {
       const userId = req.userId;
       const sessionData = await this.userService.getPurchased(userId);
-      const response: ResponseModel = {
-        success: true,
-        message: "Purchased sessions",
-        data: sessionData,
-      };
-      res.status(HttpStatusCode.OK).json(response);
+
+      sendResponse(
+        res,
+        HttpStatusCode.OK,
+        true,
+        MESSAGES.PURCHASED_SESSIONS,
+        sessionData
+      );
     } catch (error: any) {
-      const response: ResponseModel = {
-        success: false,
-        message: error.message,
-        error: error.message,
-      };
-      res.status(HttpStatusCode.BAD_REQUEST).json(response);
+      sendResponse(
+        res,
+        HttpStatusCode.BAD_REQUEST,
+        false,
+        error.message,
+        null,
+        error
+      );
     }
   };
   public getAssigned = async (req: Request, res: Response): Promise<void> => {
@@ -504,19 +530,22 @@ export class UserController implements IUserController {
         intructorId
       );
 
-      const response: ResponseModel = {
-        success: true,
-        message: "Purchased sessions",
-        data: sessionData,
-      };
-      res.status(HttpStatusCode.OK).json(response);
+      sendResponse(
+        res,
+        HttpStatusCode.OK,
+        true,
+        MESSAGES.ASSIGNED_SESSIONS,
+        sessionData
+      );
     } catch (error: any) {
-      const response: ResponseModel = {
-        success: false,
-        message: error.message,
-        error: error.message,
-      };
-      res.status(HttpStatusCode.BAD_REQUEST).json(response);
+      sendResponse(
+        res,
+        HttpStatusCode.BAD_REQUEST,
+        false,
+        error.message,
+        null,
+        error
+      );
     }
   };
 
@@ -537,19 +566,23 @@ export class UserController implements IUserController {
         query.price = { ...query.price, $lte: parseFloat(maxPrice as string) };
 
       const stocks = await this.userService.getBySearch(query);
-      const response: ResponseModel = {
-        success: true,
-        message: "Searched stocks",
-        data: stocks,
-      };
-      res.status(HttpStatusCode.OK).json(response);
+
+      sendResponse(
+        res,
+        HttpStatusCode.OK,
+        true,
+        MESSAGES.SEARCH_RESULT,
+        stocks
+      );
     } catch (error: any) {
-      const response: ResponseModel = {
-        success: false,
-        message: error.message,
-        error: error.message,
-      };
-      res.status(HttpStatusCode.BAD_REQUEST).json(response);
+      sendResponse(
+        res,
+        HttpStatusCode.BAD_REQUEST,
+        false,
+        error.message,
+        null,
+        error
+      );
     }
   };
   public generate = async (req: Request, res: Response): Promise<void> => {
@@ -574,32 +607,47 @@ export class UserController implements IUserController {
       const result = await model.generateContent(prompt);
 
       res.json({ response: result.response.text() });
-    } catch (error) {
-      console.error("Error generating content:", error);
-      res.status(500).json({ error: "Failed to generate content." });
+    } catch (error: any) {
+      sendResponse(
+        res,
+        HttpStatusCode.BAD_REQUEST,
+        false,
+        error.message,
+        null,
+        error
+      );
     }
   };
   public refreshToken = async (req: Request, res: Response): Promise<void> => {
-    const { refreshToken } = req.body;
-    if (!refreshToken) {
-      res
-        .status(HttpStatusCode.INTERNAL_SERVER_ERROR)
-        .json({ error: "Refresh token is required." });
-    }
-    const newToken = await this.userService.refreshToken(refreshToken);
+    try {
+      const { refreshToken } = req.body;
+      if (!refreshToken) {
+        res
+          .status(HttpStatusCode.INTERNAL_SERVER_ERROR)
+          .json({ error: "Refresh token is required." });
+      }
+      const newToken = await this.userService.refreshToken(refreshToken);
 
-    const response: ResponseModel = {
-      success: true,
-      message: "Searched stocks",
-      data: newToken,
-    };
-    res.status(HttpStatusCode.OK).json(response);
+      sendResponse(
+        res,
+        HttpStatusCode.OK,
+        true,
+        MESSAGES.REFRESH_TOKEN,
+        newToken
+      );
+    } catch (error: any) {
+      sendResponse(
+        res,
+        HttpStatusCode.BAD_REQUEST,
+        false,
+        error.message,
+        null,
+        error
+      );
+    }
   };
   public getSignedUrl = async (req: Request, res: Response): Promise<any> => {
     const { fileName, fileType } = req.query;
-    console.log(fileName, fileType);
-    console.log("AWS Region:", process.env.AWS_REGION);
-    console.log("AWS Bucket Name:", process.env.S3_BUCKET_NAME);
 
     if (!fileName || !fileType) {
       return res.status(400).json({ error: "Missing fileName or fileType" });
@@ -618,12 +666,15 @@ export class UserController implements IUserController {
         signedUrl,
         fileUrl: `https://${process.env.S3_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/profiles/${fileName}`,
       });
-    } catch (err) {
-      console.error("Error generating signed URL:", err);
-      res.status(500).json({
-        error: "Error generating signed URL",
-        details: (err as any).message,
-      });
+    } catch (error: any) {
+      sendResponse(
+        res,
+        HttpStatusCode.BAD_REQUEST,
+        false,
+        error.message,
+        null,
+        error
+      );
     }
   };
 
@@ -642,8 +693,41 @@ export class UserController implements IUserController {
       );
 
       res.json({ message: "Profile updated successfully", user });
-    } catch (err) {
-      res.status(500).json({ error: "Error updating profile", details: err });
+    } catch (error: any) {
+      sendResponse(
+        res,
+        HttpStatusCode.BAD_REQUEST,
+        false,
+        error.message,
+        null,
+        error
+      );
+    }
+  };
+  public getNotifications = async (
+    req: Request,
+    res: Response
+  ): Promise<void> => {
+    try {
+      const userId = req.userId;
+      const notificationData = await this.userService.getNotifications(userId);
+
+      sendResponse(
+        res,
+        HttpStatusCode.OK,
+        true,
+        MESSAGES.PURCHASED_SESSIONS,
+        notificationData
+      );
+    } catch (error: any) {
+      sendResponse(
+        res,
+        HttpStatusCode.BAD_REQUEST,
+        false,
+        error.message,
+        null,
+        error
+      );
     }
   };
 }
