@@ -49,11 +49,14 @@ exports.io = io;
 const userService = new userService_1.UserService(stockRepository, userRepository, TransactionRepository, orderRepository, promotionRepository, watchlistRepository, sessionRepsoitory, notificationRepository);
 // 🔹 Handle client connection for Socket.IO
 io.on("connection", (socket) => __awaiter(void 0, void 0, void 0, function* () {
-    var _a, _b, _c;
+    var _a, _b, _c, _d;
     console.log("Client connected:", socket.id);
-    const token = ((_a = socket.handshake.auth) === null || _a === void 0 ? void 0 : _a.token) ||
-        ((_c = (_b = socket.handshake.headers) === null || _b === void 0 ? void 0 : _b.authorization) === null || _c === void 0 ? void 0 : _c.split(" ")[1]);
+    console.log("helloo");
+    console.log("token", (_a = socket.handshake.auth) === null || _a === void 0 ? void 0 : _a.token);
+    const token = ((_b = socket.handshake.auth) === null || _b === void 0 ? void 0 : _b.token) ||
+        ((_d = (_c = socket.handshake.headers) === null || _c === void 0 ? void 0 : _c.authorization) === null || _d === void 0 ? void 0 : _d.split(" ")[1]);
     console.log("Received Token:", token);
+    console.log("token");
     if (!token) {
         console.log("❌ No token provided. Disconnecting...");
         socket.emit("auth-error", "Authentication required");

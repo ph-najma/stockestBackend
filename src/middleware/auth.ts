@@ -25,6 +25,8 @@ export const verifyTokenWithRole = (requiredRole: string) => {
       const token =
         req.headers.authorization && req.headers.authorization.split(" ")[1];
 
+      console.log("token fron auth", token);
+
       if (!token) {
         res
           .status(401)

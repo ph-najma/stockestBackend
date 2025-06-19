@@ -49,12 +49,15 @@ const userService: IUserService = new UserService(
 // 🔹 Handle client connection for Socket.IO
 io.on("connection", async (socket) => {
   console.log("Client connected:", socket.id);
+  console.log("helloo");
+  console.log("token", socket.handshake.auth?.token);
 
   const token =
     socket.handshake.auth?.token ||
     socket.handshake.headers?.authorization?.split(" ")[1];
 
   console.log("Received Token:", token);
+  console.log("token");
 
   if (!token) {
     console.log("❌ No token provided. Disconnecting...");

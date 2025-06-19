@@ -24,6 +24,7 @@ const verifyTokenWithRole = (requiredRole) => {
     return (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
         try {
             const token = req.headers.authorization && req.headers.authorization.split(" ")[1];
+            console.log("token fron auth", token);
             if (!token) {
                 res
                     .status(401)
